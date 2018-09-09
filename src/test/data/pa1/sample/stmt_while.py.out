@@ -1,0 +1,18 @@
+{
+  "kind" : "Program",
+  "declarations" : [ ],
+  "statements" : [ {
+    "kind" : "WhileStmt",
+    "condition" : {
+      "kind" : "BooleanLiteral",
+      "value" : true,
+      "location" : [ 1, 7, 1, 10 ]
+    },
+    "body" : [ {
+      "kind" : "PassStmt",
+      "location" : [ 2, 5, 2, 8 ]
+    } ],
+    "location" : [ 1, 1, 4, 0 ]
+  } ],
+  "location" : [ 0, 0, 4, 0 ]
+}

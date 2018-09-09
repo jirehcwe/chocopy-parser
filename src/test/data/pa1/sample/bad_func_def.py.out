@@ -1,0 +1,21 @@
+{
+  "kind" : "Errors",
+  "errors" : [ {
+    "kind" : "SyntaxError",
+    "message" : "Parse error near token COMMA: ,",
+    "location" : [ 1, 10, 1, 10 ]
+  }, {
+    "kind" : "SyntaxError",
+    "message" : "Parse error near token IDENTIFIER: a",
+    "location" : [ 2, 13, 2, 13 ]
+  }, {
+    "kind" : "SyntaxError",
+    "message" : "Parse error near token DEDENT: ",
+    "location" : [ 5, 1, 5, 0 ]
+  }, {
+    "kind" : "SyntaxError",
+    "message" : "Parse error near token TIMES: *",
+    "location" : [ 6, 9, 6, 9 ]
+  } ],
+  "location" : [ 0, 0, 0, 0 ]
+}

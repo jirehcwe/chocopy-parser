@@ -1,0 +1,13 @@
+{
+  "kind" : "Errors",
+  "errors" : [ {
+    "kind" : "SyntaxError",
+    "message" : "Parse error near token UNRECOGNIZED: &",
+    "location" : [ 2, 22, 2, 22 ]
+  }, {
+    "kind" : "SyntaxError",
+    "message" : "Parse error near token LT: <",
+    "location" : [ 4, 4, 4, 4 ]
+  } ],
+  "location" : [ 0, 0, 0, 0 ]
+}
