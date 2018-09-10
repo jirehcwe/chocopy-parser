@@ -30,9 +30,23 @@ See `PA1.pdf` for a detailed specification of the assignment.
 
 Refer to `chocopy_language_reference.pdf` for specifications on the ChocoPy language. 
 
+## Receiving updates to this repository
+
+Add the `upstream` repository remotes (you only need to do this once in your local clone):
+
+```
+git remote add upstream https://github.com/cs164fall2018/pa1-chocopy-parser.git
+```
+
+To sync with updates upstream:
+```
+git pull upstream master
+```
+
 ## Submission writeup
 
 Team member 1: 
+
 Team member 2: 
 
 (Students should edit this section with their write-up)
