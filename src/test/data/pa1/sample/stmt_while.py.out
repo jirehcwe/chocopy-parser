@@ -12,7 +12,7 @@
       "kind" : "PassStmt",
       "location" : [ 2, 5, 2, 8 ]
     } ],
-    "location" : [ 1, 1, 4, 0 ]
+    "location" : [ 1, 1, 2, 8 ]
   } ],
-  "location" : [ 0, 0, 4, 0 ]
+  "location" : [ 1, 1, 2, 8 ]
 }

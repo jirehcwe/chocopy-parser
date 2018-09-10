@@ -35,7 +35,7 @@
       },
       "location" : [ 2, 5, 2, 13 ]
     } ],
-    "location" : [ 1, 1, 4, 0 ]
+    "location" : [ 1, 1, 2, 14 ]
   } ],
   "statements" : [ {
     "kind" : "VarAssignStmt",
@@ -78,5 +78,5 @@
     },
     "location" : [ 5, 1, 5, 7 ]
   } ],
-  "location" : [ 0, 0, 5, 8 ]
+  "location" : [ 1, 1, 5, 7 ]
 }

@@ -67,7 +67,7 @@
       },
       "location" : [ 4, 5, 4, 17 ]
     } ],
-    "location" : [ 3, 1, 6, 0 ]
+    "location" : [ 3, 1, 4, 18 ]
   }, {
     "kind" : "ClassDef",
     "name" : {
@@ -269,9 +269,9 @@
             "location" : [ 17, 17, 17, 22 ]
           } ],
           "elseBody" : [ ],
-          "location" : [ 16, 13, 19, 0 ]
+          "location" : [ 16, 13, 17, 22 ]
         } ],
-        "location" : [ 14, 9, 19, 0 ]
+        "location" : [ 14, 9, 19, 8 ]
       } ],
       "statements" : [ {
         "kind" : "ForStmt",
@@ -318,7 +318,7 @@
           },
           "location" : [ 20, 13, 20, 27 ]
         } ],
-        "location" : [ 19, 9, 22, 0 ]
+        "location" : [ 19, 9, 20, 27 ]
       }, {
         "kind" : "ExprStmt",
         "expr" : {
@@ -537,11 +537,11 @@
               "location" : [ 32, 17, 32, 35 ]
             } ],
             "elseBody" : [ ],
-            "location" : [ 31, 13, 34, 0 ]
+            "location" : [ 31, 13, 32, 35 ]
           } ],
-          "location" : [ 27, 13, 34, 0 ]
+          "location" : [ 27, 13, 32, 35 ]
         } ],
-        "location" : [ 26, 9, 34, 0 ]
+        "location" : [ 26, 9, 32, 35 ]
       }, {
         "kind" : "ReturnStmt",
         "value" : {
@@ -551,7 +551,7 @@
         },
         "location" : [ 34, 9, 34, 21 ]
       } ],
-      "location" : [ 9, 5, 36, 0 ]
+      "location" : [ 9, 5, 34, 22 ]
     } ],
     "location" : [ 6, 1, 36, 0 ]
   } ],
@@ -604,5 +604,5 @@
     },
     "location" : [ 36, 1, 36, 23 ]
   } ],
-  "location" : [ 0, 0, 36, 24 ]
+  "location" : [ 1, 1, 36, 23 ]
 }

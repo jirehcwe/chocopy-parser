@@ -58,6 +58,11 @@ parser code {:
  * right-most symbol. The auto-generated variables have names `<sym>xleft`
  * and `<sym>xright` where <sym> is the name given to the symbol using the
  * colon notation.
+ *
+ * When you have nonterminals that are lists of things, e.g. List<Stmt> or
+ * List<Declaration>, it is helpful to get the leftmost and rightmost
+ * source location from within this list; we have provided some utility
+ * functions below to do just that.
  **************************************************************************/
 
 
@@ -84,6 +89,18 @@ action code {:
     <T> List<T> empty() {
         return new ArrayList<T>();
     }
+
+    // Gets the leftmost non-whitespace location in a list of nodes (e.g. a block of statements)
+    ComplexSymbolFactory.Location getLeft(List<? extends Node> nodes) {
+        Node first = nodes.get(0);
+        return new ComplexSymbolFactory.Location(first.getLocation()[0], first.getLocation()[1]);
+    }
+
+    // Gets the rightmost non-whitespace location in a list of nodes (e.g. a block of statements)
+    ComplexSymbolFactory.Location getRight(List<? extends Node> nodes) {
+        Node last = nodes.get(nodes.size()-1);
+        return new ComplexSymbolFactory.Location(last.getLocation()[2], last.getLocation()[3]);
+    }
 :}
 
 /* Declaration of terminal symbols (tokens returned by the lexer) */
@@ -108,7 +125,7 @@ start with program;
 
 
 /* The grammar rules */
-program ::= top_level_decl:d stmt_list:s   {: RESULT = new Program(dxleft, sxright, d, s); :}
+program ::= top_level_decl:d stmt_list:s   {: RESULT = new Program(d.isEmpty() ? getLeft(s) : getLeft(d), getRight(s), d, s); :}
           ;
 
 top_level_decl ::= /* not implemented; matches empty string */ {: RESULT = empty(); :}
