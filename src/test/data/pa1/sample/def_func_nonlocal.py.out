@@ -127,7 +127,7 @@
         },
         "location" : [ 8, 9, 8, 16 ]
       } ],
-      "location" : [ 5, 5, 8, 17 ]
+      "location" : [ 5, 5, 8, 16 ]
     } ],
     "statements" : [ {
       "kind" : "ReturnStmt",
@@ -157,7 +157,7 @@
       },
       "location" : [ 9, 5, 9, 21 ]
     } ],
-    "location" : [ 2, 1, 9, 22 ]
+    "location" : [ 2, 1, 9, 21 ]
   } ],
   "statements" : [ {
     "kind" : "ExprStmt",

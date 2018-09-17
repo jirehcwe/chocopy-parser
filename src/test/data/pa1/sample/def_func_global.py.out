@@ -76,7 +76,7 @@
       },
       "location" : [ 5, 5, 5, 16 ]
     } ],
-    "location" : [ 3, 1, 5, 17 ]
+    "location" : [ 3, 1, 5, 16 ]
   } ],
   "statements" : [ {
     "kind" : "ExprStmt",
