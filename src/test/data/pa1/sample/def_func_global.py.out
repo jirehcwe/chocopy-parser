@@ -55,7 +55,7 @@
         "name" : "z",
         "location" : [ 4, 12, 4, 12 ]
       },
-      "location" : [ 4, 12, 4, 12 ]
+      "location" : [ 4, 5, 4, 12 ]
     } ],
     "statements" : [ {
       "kind" : "ReturnStmt",

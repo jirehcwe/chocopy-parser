@@ -152,7 +152,7 @@
           "name" : "count",
           "location" : [ 10, 16, 10, 20 ]
         },
-        "location" : [ 10, 16, 10, 20 ]
+        "location" : [ 10, 9, 10, 20 ]
       }, {
         "kind" : "VarDef",
         "var" : {
@@ -230,7 +230,7 @@
             "name" : "x",
             "location" : [ 15, 22, 15, 22 ]
           },
-          "location" : [ 15, 22, 15, 22 ]
+          "location" : [ 15, 13, 15, 22 ]
         } ],
         "statements" : [ {
           "kind" : "IfStmt",
