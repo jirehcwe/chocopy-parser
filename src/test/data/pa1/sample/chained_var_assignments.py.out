@@ -1,0 +1,37 @@
+{
+  "kind" : "Program",
+  "declarations" : [ ],
+  "statements" : [ {
+    "kind" : "VarAssignStmt",
+    "var" : {
+      "kind" : "Identifier",
+      "name" : "x",
+      "location" : [ 1, 1, 1, 1 ]
+    },
+    "value" : {
+      "kind" : "VarAssignExpr",
+      "var" : {
+        "kind" : "Identifier",
+        "name" : "y",
+        "location" : [ 1, 5, 1, 5 ]
+      },
+      "value" : {
+        "kind" : "VarAssignExpr",
+        "var" : {
+          "kind" : "Identifier",
+          "name" : "z",
+          "location" : [ 1, 9, 1, 9 ]
+        },
+        "value" : {
+          "kind" : "IntegerLiteral",
+          "value" : 1,
+          "location" : [ 1, 13, 1, 13 ]
+        },
+        "location" : [ 1, 9, 1, 13 ]
+      },
+      "location" : [ 1, 5, 1, 13 ]
+    },
+    "location" : [ 1, 1, 1, 13 ]
+  } ],
+  "location" : [ 1, 1, 1, 13 ]
+}

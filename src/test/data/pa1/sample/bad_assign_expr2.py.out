@@ -1,0 +1,9 @@
+{
+  "kind" : "Errors",
+  "errors" : [ {
+    "kind" : "SyntaxError",
+    "message" : "Parse error near token EQ: =",
+    "location" : [ 1, 9, 1, 9 ]
+  } ],
+  "location" : [ 0, 0, 0, 0 ]
+}
