@@ -109,6 +109,30 @@ terminal String PLUS;     // the lexer provides a value of type `String`
 terminal Integer NUMBER;  // the lexer provides a value of type `Integer`
 terminal UNRECOGNIZED;    // produced by the lexer on error; no syntax rule should contain this token
 
+/* Terminal Keywords */
+terminal FALSE;
+terminal NONE;
+terminal TRUE;
+terminal AND;
+terminal AS;
+terminal CLASS;
+terminal DEF;
+terminal ELIF;
+terminal ELSE;
+terminal FOR;
+terminal GLOBAL;
+terminal IF;
+terminal IN;
+terminal IS;
+terminal NONLOCAL;
+terminal NOT;
+terminal OR;
+terminal PASS;
+terminal RETURN;
+terminal WHILE;
+terminal String UNUSED    // reserved but unused keywords
+
+
 /* Declaration of nonterminal symbols (defined in production rules below) */
 non terminal Program           program;
 non terminal List<Declaration> top_level_decl;
