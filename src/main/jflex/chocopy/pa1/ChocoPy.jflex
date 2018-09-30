@@ -68,6 +68,44 @@ IntegerLiteral = 0 | [1-9][0-9]*
 
 <YYINITIAL> {
 
+  /* keywords */
+  "False"                        { return symbol(ChocoPyTokens.FALSE); }
+  "None"                         { return symbol(ChocoPyTokens.NONE); }
+  "True"                         { return symbol(ChocoPyTokens.TRUE); }
+  "and"                          { return symbol(ChocoPyTokens.AND); }
+  "as"                           { return symbol(ChocoPyTokens.AS); }
+  "class"                        { return symbol(ChocoPyTokens.CLASS); }
+  "def"                          { return symbol(ChocoPyTokens.DEF); }
+  "elif"                         { return symbol(ChocoPyTokens.ELIF; }
+  "else"                         { return symbol(ChocoPyTokens.ELSE; }
+  "for"                          { return symbol(ChocoPyTokens.FOR; }
+  "global"                       { return symbol(ChocoPyTokens.GLOBAL; }
+  "if"                           { return symbol(ChocoPyTokens.IF; }
+  "in"                           { return symbol(ChocoPyTokens.IN; }
+  "is"                           { return symbol(ChocoPyTokens.IS; }
+  "nonlocal"                     { return symbol(ChocoPyTokens.NONLOCAL; }
+  "not"                          { return symbol(ChocoPyTokens.NOT; }
+  "or"                           { return symbol(ChocoPyTokens.OR; }
+  "pass"                         { return symbol(ChocoPyTokens.PASS; }
+  "return"                       { return symbol(ChocoPyTokens.RETURN; }
+  "while"                        { return symbol(ChocoPyTokens.WHILE; }
+  
+  /* Unused but still reserved keywords */
+  "assert"                       { return symbol(ChocoPyTokens.UNUSED, yytext()); }
+  "await"                        { return symbol(ChocoPyTokens.UNUSED, yytext()); }
+  "break"                        { return symbol(ChocoPyTokens.UNUSED, yytext()); }
+  "continue"                     { return symbol(ChocoPyTokens.UNUSED, yytext()); }
+  "del"                          { return symbol(ChocoPyTokens.UNUSED, yytext()); }
+  "except"                       { return symbol(ChocoPyTokens.UNUSED, yytext()); }
+  "finally"                      { return symbol(ChocoPyTokens.UNUSED, yytext()); }
+  "from"                         { return symbol(ChocoPyTokens.UNUSED, yytext()); }
+  "import"                       { return symbol(ChocoPyTokens.UNUSED, yytext()); }
+  "lambda"                       { return symbol(ChocoPyTokens.UNUSED, yytext()); }
+  "raise"                        { return symbol(ChocoPyTokens.UNUSED, yytext()); }
+  "try"                          { return symbol(ChocoPyTokens.UNUSED, yytext()); }
+  "with"                         { return symbol(ChocoPyTokens.UNUSED, yytext()); }
+  "yield"                        { return symbol(ChocoPyTokens.UNUSED, yytext()); }
+
   /* delimiters */
   {LineBreak}                    { return symbol(ChocoPyTokens.NEWLINE); }
    
@@ -76,7 +114,8 @@ IntegerLiteral = 0 | [1-9][0-9]*
 
   /* operators */
   "+"                            { return symbol(ChocoPyTokens.PLUS, yytext()); }
-
+  
+  /* Line structure */
   /* whitespace */
   {WhiteSpace}                   { /* ignore */ }
 }
