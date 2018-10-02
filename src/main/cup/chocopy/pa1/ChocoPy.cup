@@ -164,7 +164,7 @@ non terminal Program           program;
 non terminal List<Declaration> top_level_decl;
 non terminal List<Stmt>        stmt_list;
 non terminal Stmt              stmt, expr_stmt;
-non terminal Expr              expr, binary_expr;
+non terminal Expr              expr, binary_expr,optionalRet, assign_expr;
 non terminal IndexExpr         index_expr;
 non terminal MemberExpr        member_expr;
 non terminal List<Expr>        list_expr;
@@ -195,8 +195,16 @@ stmt_list ::= stmt:s                 {: RESULT = single(s); :}
 stmt ::= expr_stmt:s NEWLINE   {: RESULT = s; :}
               ;
 
-expr_stmt ::= expr:e       {: RESULT = new ExprStmt(exleft, exright, e); :}
+
+expr_stmt ::= PASS:p                                {: RESULT = new PassStmt(pxleft, pxright); :}
+            | expr:e                                {: RESULT = new ExprStmt(exleft, exright, e); :}
+            | RETURN:r optionalRet:e                {: RESULT = new ReturnStmt(rxleft, exright, e); :}
+            | identifier:id EQUALS assign_expr:ae   {: RESULT = new VarAssignStmt(idxleft, aexright, id, ae); :}
             ;
+
+optionalRet ::= expr:e {: RESULT = e; :}
+              |
+              ;
 
 expr ::= identifier:id                                  {: RESULT = id; :}
        | literal:l                                      {: RESULT = l; :}
@@ -219,19 +227,23 @@ literal ::= BOOL:b          {: RESULT = new BooleanLiteral(bxleft, bxright, b); 
           | STRING:s        {: RESULT = new StringLiteral(sxleft, sxright, s); :}
           ;
 
-index_expr ::= expr:e1 LBRACK:lb expr:e2 RBRACK:rb      {: RESULT = new IndexExpr(e1xleft, rbxright, e1, e2); :}
-             ;
-
 binary_expr ::= expr:e1 PLUS:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
               | expr:e1 MINUS:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
               | expr:e1 MULT:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
               | expr:e1 INTDIV:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
               ;
 
-
 member_expr ::= expr:e PERIOD:p identifier:id            {: RESULT = new MemberExpr(exleft, idxright, e, id); :}
               ;
-              
+
+
+index_expr ::= expr:e1 LBRACK:lb expr:e2 RBRACK:rb      {: RESULT = new IndexExpr(e1xleft, rbxright, e1, e2); :}
+             ;
+
+assign_expr ::= expr:e1                                         {: RESULT = e1; :}
+              | identifier:id EQUALS:e assign_expr:ae           {: RESULT = new VarAssignExpr(idxleft, aexright, id, ae); :}
+              ;
+
 identifier ::= ID:id                             {: RESULT = new Identifier(idxleft, idxright, id); :}
              ;
 
