@@ -42,6 +42,8 @@ import java_cup.runtime.*;
     // You do not need to modify any of this for the assignment.
 
     final ComplexSymbolFactory symbolFactory = new ComplexSymbolFactory();
+    
+    StringBuffer string = new StringBuffer();
 
     private Symbol symbol(int type) {
         return symbol(type, yytext());
@@ -62,6 +64,8 @@ WhiteSpace = [ \t]
 LineBreak  = \r|\n|\r\n
 
 IntegerLiteral = 0 | [1-9][0-9]*
+
+%state STRINGMODE
 
 %%
 
@@ -111,6 +115,7 @@ IntegerLiteral = 0 | [1-9][0-9]*
    
   /* literals */
   {IntegerLiteral}               { return symbol(ChocoPyTokens.NUMBER, Integer.parseInt(yytext())); }
+  \"                             { string.setLength(0); yybegin(STRINGMODE); }
 
   /* operators */
   "+"                            { return symbol(ChocoPyTokens.PLUS, yytext()); }
@@ -119,6 +124,15 @@ IntegerLiteral = 0 | [1-9][0-9]*
   /* Line structure */
   /* whitespace */
   {WhiteSpace}                   { /* ignore */ }
+}
+
+<STRINGMODE> {
+  \"                             { yybegin(YYINITIAL); return symbol(ChocoPyTokens.STRING, string.toString()); }
+  [\x20-\x21\x23-\x5B\x5D-\x7E]+ { string.append(yytext()); }
+  \\\"                           { string.append('\"'); }
+  \\n                            { string.append('\n'); }
+  \\t                            { string.append('\t'); }
+  \\                             { string.append('\\'); }
 }
 
 <<EOF>>                          { return symbol(ChocoPyTokens.EOF); }

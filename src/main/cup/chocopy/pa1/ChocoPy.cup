@@ -108,6 +108,7 @@ terminal NEWLINE;         // the type does not matter because we discard the val
 terminal String PLUS;     // the lexer provides a value of type `String`
 terminal String MINUS;    // the lexer provides a value of type `String`
 terminal Integer NUMBER;  // the lexer provides a value of type `Integer`
+terminal String STRING;   // the STRING Literal
 terminal UNRECOGNIZED;    // produced by the lexer on error; no syntax rule should contain this token
 
 /* Terminal Keywords */
