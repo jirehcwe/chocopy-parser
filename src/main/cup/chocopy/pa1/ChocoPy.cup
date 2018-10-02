@@ -171,6 +171,7 @@ non terminal Literal           literal;
 
 /* Precedences */
 precedence left PLUS, MINUS;
+precedence left PERIOD, COMMA, LBRACK, RBRACK;
 
 /* Declare the start rule */
 start with program;
@@ -197,11 +198,11 @@ expr_stmt ::= expr:e       {: RESULT = new ExprStmt(exleft, exright, e); :}
             ;
 
 expr ::= ID:id                                  {: RESULT = new Identifier(idxleft, idxright, id); :}
-       | binary_expr:e                          {: RESULT = e; :}
        | literal:l                              {: RESULT = l; :}
        | MINUS:op expr:e                        {: RESULT = new UnaryExpr(opxleft, exright, op, e); :}
        | LBRACK:lb list_expr:le RBRACK:rb       {: RESULT = new ListExpr(lbxleft, rbxright, le); :}
        | index_expr:e                           {: RESULT = e; :}
+       | binary_expr:e                          {: RESULT = e; :}
        ;
 
   /* WIP: was trying to implement expressions in parenthesis.*/
@@ -216,7 +217,7 @@ literal ::= BOOL:b          {: RESULT = new BooleanLiteral(bxleft, bxright, b); 
           | STRING:s        {: RESULT = new StringLiteral(sxleft, sxright, s); :} //UGLY HACK!
           ;
 
-index_expr ::= expr:e1 LBRACK:lb expr:e2 RBRACK:rb      {: RESULT = new IndexExpr(lbxleft, rbxright, e1, e2); :}
+index_expr ::= expr:e1 LBRACK:lb expr:e2 RBRACK:rb      {: RESULT = new IndexExpr(e1xleft, rbxright, e1, e2); :}
              ;
 
 binary_expr ::= expr:e1 PLUS:op expr:e2         {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
