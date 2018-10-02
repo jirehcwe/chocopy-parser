@@ -107,7 +107,11 @@ action code {:
 terminal NEWLINE;         // the type does not matter because we discard the value
 terminal String PLUS;     // the lexer provides a value of type `String`
 terminal String MINUS;    // the lexer provides a value of type `String`
+terminal String LPAREN;   // terminal for parenthesis "("
+temrinal String RPAREN;   // terminal for parenthesis ")"
 terminal Integer NUMBER;  // the lexer provides a value of type `Integer`
+terminal String STRING;
+terminal Bool BOOL;
 terminal UNRECOGNIZED;    // produced by the lexer on error; no syntax rule should contain this token
 
 /* Terminal Keywords */
@@ -170,7 +174,14 @@ expr_stmt ::= expr:e       {: RESULT = new ExprStmt(exleft, exright, e); :}
 expr ::= binary_expr:e     {: RESULT = e; :}
        | NUMBER:n          {: RESULT = new IntegerLiteral(nxleft, nxright, n); :}
        | MINUS:op expr:e   {: RESULT = new UnaryExpr(opxleft, exright, op, e); :}
+       |
        ;
+
+literal ::= BOOL:b          {: RESULT = new BooleanLiteral(bxleft, bxright, b); :}
+          | NUMBER:n        {: RESULT = new IntegerLiteral(nxleft, nxright, n); :}
+          | NONE:na         {: RESULT = new NoneLiteral(naxleft, naxright); :}
+          | STRING:s        {: RESULT = new StringLiteral(sxleft, sxright); :}
+          ;
 
 
 binary_expr ::= expr:e1 PLUS:op expr:e2         {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
