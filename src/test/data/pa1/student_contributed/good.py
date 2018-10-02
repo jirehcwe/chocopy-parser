@@ -1,1 +1,1 @@
-b + a[i][j]
+print.a

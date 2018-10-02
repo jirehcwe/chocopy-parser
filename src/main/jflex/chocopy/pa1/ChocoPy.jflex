@@ -69,7 +69,7 @@ import java_cup.runtime.*;
 
 WhiteSpace = [ \t]
 LineBreak  = \r|\n|\r\n
-Ident = [a-zA-Z$_] [a-zA-Z0-9$_]*
+Ident = [a-zA-Z$_][a-zA-Z0-9$_]*
 IntegerLiteral = 0 | [1-9][0-9]*
 
 %state STRINGMODE
