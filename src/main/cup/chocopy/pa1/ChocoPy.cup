@@ -106,6 +106,7 @@ action code {:
 /* Declaration of terminal symbols (tokens returned by the lexer) */
 terminal NEWLINE;         // the type does not matter because we discard the value
 terminal String PLUS;     // the lexer provides a value of type `String`
+terminal String MINUS;    // the lexer provides a value of type `String`
 terminal Integer NUMBER;  // the lexer provides a value of type `Integer`
 terminal UNRECOGNIZED;    // produced by the lexer on error; no syntax rule should contain this token
 
@@ -130,7 +131,7 @@ terminal OR;
 terminal PASS;
 terminal RETURN;
 terminal WHILE;
-terminal String UNUSED    // reserved but unused keywords
+terminal String UNUSED;    // reserved but unused keywords
 
 
 /* Declaration of nonterminal symbols (defined in production rules below) */
@@ -141,7 +142,7 @@ non terminal Stmt              stmt, expr_stmt;
 non terminal Expr              expr, binary_expr;
 
 /* Precedences */
-precedence left PLUS;
+precedence left PLUS, MINUS;
 
 /* Declare the start rule */
 start with program;
@@ -168,6 +169,7 @@ expr_stmt ::= expr:e       {: RESULT = new ExprStmt(exleft, exright, e); :}
 
 expr ::= binary_expr:e     {: RESULT = e; :}
        | NUMBER:n          {: RESULT = new IntegerLiteral(nxleft, nxright, n); :}
+       | MINUS:op expr:e   {: RESULT = -e; :} //BUG: still can't build package with this.
        ;
 
 
