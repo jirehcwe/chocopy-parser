@@ -169,7 +169,7 @@ expr_stmt ::= expr:e       {: RESULT = new ExprStmt(exleft, exright, e); :}
 
 expr ::= binary_expr:e     {: RESULT = e; :}
        | NUMBER:n          {: RESULT = new IntegerLiteral(nxleft, nxright, n); :}
-       | MINUS:op expr:e   {: RESULT = -e; :} //BUG: still can't build package with this.
+       | MINUS:op expr:e   {: RESULT = new UnaryExpr(opxleft, exright, op, e); :}
        ;
 
 
