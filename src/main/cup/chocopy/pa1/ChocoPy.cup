@@ -107,6 +107,26 @@ action code {:
 terminal NEWLINE;         // the type does not matter because we discard the value
 terminal String PLUS;     // the lexer provides a value of type `String`
 terminal String MINUS;    // the lexer provides a value of type `String`
+terminal String MULT;    // the lexer provides a value of type `String`
+terminal String INTDIV;    // the lexer provides a value of type `String`
+terminal String MOD;    // the lexer provides a value of type `String`
+
+
+terminal String LTHAN;    // the lexer provides a value of type `String`
+terminal String GTHAN;    // the lexer provides a value of type `String`
+terminal String LEQ;    // the lexer provides a value of type `String`
+terminal String GEQ;    // the lexer provides a value of type `String`
+terminal String EQUALSEQUALS;    // the lexer provides a value of type `String`
+terminal String NOTEQUALS;    // the lexer provides a value of type `String`
+terminal String EQUALS;    // the lexer provides a value of type `String`
+terminal String COLON;
+terminal String PERIOD;
+terminal String RARROW;
+
+
+
+
+
 terminal String LPAREN;   // terminal for parenthesis "("
 terminal String RPAREN;   // terminal for parenthesis ")"
 terminal String LBRACK;   // terminal for square bracket "["
@@ -114,13 +134,11 @@ terminal String RBRACK;   // terminal for square bracket "]"
 terminal String COMMA;    // terminal for comma
 terminal Integer NUMBER;  // the lexer provides a value of type `Integer`
 terminal String STRING;   // the STRING Literal
-terminal Bool BOOL;
+terminal boolean BOOL;
 terminal UNRECOGNIZED;    // produced by the lexer on error; no syntax rule should contain this token
 
 /* Terminal Keywords */
-terminal FALSE;
 terminal NONE;
-terminal TRUE;
 terminal AND;
 terminal AS;
 terminal CLASS;
@@ -140,14 +158,14 @@ terminal RETURN;
 terminal WHILE;
 terminal String UNUSED;    // reserved but unused keywords
 
-
 /* Declaration of nonterminal symbols (defined in production rules below) */
 non terminal Program           program;
 non terminal List<Declaration> top_level_decl;
 non terminal List<Stmt>        stmt_list;
 non terminal Stmt              stmt, expr_stmt;
 non terminal Expr              expr, binary_expr;
-non terminal ListExpr          list_expr;
+non terminal List<Expr>        list_expr;
+non terminal Literal           literal;
 
 /* Precedences */
 precedence left PLUS, MINUS;
@@ -176,20 +194,21 @@ expr_stmt ::= expr:e       {: RESULT = new ExprStmt(exleft, exright, e); :}
             ;
 
 expr ::= binary_expr:e     {: RESULT = e; :}
-       | NUMBER:n          {: RESULT = new IntegerLiteral(nxleft, nxright, n); :}
+       | literal:l         {: RESULT = l; :}
        | MINUS:op expr:e   {: RESULT = new UnaryExpr(opxleft, exright, op, e); :}
-       | LBRACK:lb list_expr:le RBRACK:rb {: RESULT = new ListExpr(lbxleft, rbxright, parse(list_expr);); :}
+       | LBRACK:lb list_expr:le RBRACK:rb {: RESULT = new ListExpr(lbxleft, rbxright, le); :}
        ;
 
   /*| LPAREN:op1 expr:e RPAREN:op2 {: RESULT = new ExprStmt(exleft, exright, e); :} WIP: was trying to implement expressions in parenthesis.*/
 
-list_expr ::=  expr:e COMMA:op list_expr:le {: RESULT = combine(parse(list_expr), e)}
-            | {: RESULT = empty(); :}
+list_expr ::= list_expr:le COMMA:op expr:e   {: RESULT = combine(le, e); :}
+            | expr:e                         {: RESULT = single(e); :}
+            ;
 
 literal ::= BOOL:b          {: RESULT = new BooleanLiteral(bxleft, bxright, b); :}
           | NUMBER:n        {: RESULT = new IntegerLiteral(nxleft, nxright, n); :}
           | NONE:na         {: RESULT = new NoneLiteral(naxleft, naxright); :}
-          | STRING:s        {: RESULT = new StringLiteral(sxleft, sxright); :}
+          | STRING:s        {: RESULT = new StringLiteral(sxleft, sxright, s); :} //UGLY HACK!
           ;
 
 

@@ -56,6 +56,13 @@ import java_cup.runtime.*;
             value);
     }
 
+    private Symbol strSymbol(String value) {
+        return symbolFactory.newSymbol(ChocoPyTokens.terminalNames[ChocoPyTokens.STRING], ChocoPyTokens.STRING,
+            new ComplexSymbolFactory.Location(yyline+1, yycolumn - value.length()),
+            new ComplexSymbolFactory.Location(yyline+1,yycolumn+yylength()),
+            value);
+    }
+
 %}
 
 /* Macros (regexes used in rules below) */
@@ -73,9 +80,9 @@ IntegerLiteral = 0 | [1-9][0-9]*
 <YYINITIAL> {
 
   /* keywords */
-  "False"                        { return symbol(ChocoPyTokens.FALSE); }
+  "False"                        { return symbol(ChocoPyTokens.BOOL, false); }
   "None"                         { return symbol(ChocoPyTokens.NONE); }
-  "True"                         { return symbol(ChocoPyTokens.TRUE); }
+  "True"                         { return symbol(ChocoPyTokens.BOOL, true); }
   "and"                          { return symbol(ChocoPyTokens.AND); }
   "as"                           { return symbol(ChocoPyTokens.AS); }
   "class"                        { return symbol(ChocoPyTokens.CLASS); }
@@ -111,6 +118,7 @@ IntegerLiteral = 0 | [1-9][0-9]*
   "yield"                        { return symbol(ChocoPyTokens.UNUSED, yytext()); }
 
   /* delimiters */
+  {LineBreak} {WhiteSpace}* {LineBreak} { return symbol(ChocoPyTokens.NEWLINE); }
   {LineBreak}                    { return symbol(ChocoPyTokens.NEWLINE); }
    
   /* literals */
@@ -145,7 +153,7 @@ IntegerLiteral = 0 | [1-9][0-9]*
 }
 
 <STRINGMODE> {
-  \"                             { yybegin(YYINITIAL); return symbol(ChocoPyTokens.STRING, string.toString()); }
+  \"                             { yybegin(YYINITIAL); return strSymbol(string.toString()); }
   [\x20-\x21\x23-\x5B\x5D-\x7E]+ { string.append(yytext()); }
   \\\"                           { string.append('\"'); }
   \\n                            { string.append('\n'); }
