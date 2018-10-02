@@ -111,6 +111,7 @@ terminal String LPAREN;   // terminal for parenthesis "("
 terminal String RPAREN;   // terminal for parenthesis ")"
 terminal String LBRACK;   // terminal for square bracket "["
 terminal String RBRACK;   // terminal for square bracket "]"
+terminal String COMMA;    // terminal for comma
 terminal Integer NUMBER;  // the lexer provides a value of type `Integer`
 terminal String STRING;   // the STRING Literal
 terminal Bool BOOL;
@@ -146,6 +147,7 @@ non terminal List<Declaration> top_level_decl;
 non terminal List<Stmt>        stmt_list;
 non terminal Stmt              stmt, expr_stmt;
 non terminal Expr              expr, binary_expr;
+non terminal ListExpr          list_expr;
 
 /* Precedences */
 precedence left PLUS, MINUS;
@@ -176,8 +178,13 @@ expr_stmt ::= expr:e       {: RESULT = new ExprStmt(exleft, exright, e); :}
 expr ::= binary_expr:e     {: RESULT = e; :}
        | NUMBER:n          {: RESULT = new IntegerLiteral(nxleft, nxright, n); :}
        | MINUS:op expr:e   {: RESULT = new UnaryExpr(opxleft, exright, op, e); :}
-       /*| LPAREN:op1 expr:e RPAREN:op2 {: RESULT = new ExprStmt(exleft, exright, e); :}*/
+       | LBRACK:lb list_expr:le RBRACK:rb {: RESULT = new ListExpr(lbxleft, rbxright, parse(list_expr);); :}
        ;
+
+  /*| LPAREN:op1 expr:e RPAREN:op2 {: RESULT = new ExprStmt(exleft, exright, e); :} WIP: was trying to implement expressions in parenthesis.*/
+
+list_expr ::=  expr:e COMMA:op list_expr:le {: RESULT = combine(parse(list_expr), e)}
+            | {: RESULT = empty(); :}
 
 literal ::= BOOL:b          {: RESULT = new BooleanLiteral(bxleft, bxright, b); :}
           | NUMBER:n        {: RESULT = new IntegerLiteral(nxleft, nxright, n); :}
