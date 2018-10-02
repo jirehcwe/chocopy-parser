@@ -170,16 +170,14 @@ non terminal MemberExpr        member_expr;
 non terminal List<Expr>        list_expr;
 non terminal Literal           literal;
 non terminal Identifier        identifier;
-/*non terminal AssignExpr        assign_expr;*/ //WIP
 
 /* Precedences */
 precedence left PLUS, MINUS;
+precedence left MULT, INTDIV;
 precedence left PERIOD, COMMA, LBRACK, RBRACK;
 
 /* Declare the start rule */
 start with program;
-
-
 
 /* The grammar rules */
 program ::= top_level_decl:d stmt_list:s   {: RESULT = new Program(d.isEmpty() ? getLeft(s) : getLeft(d), getRight(s), d, s); :}
@@ -189,6 +187,7 @@ top_level_decl ::= /* not implemented; matches empty string */ {: RESULT = empty
                 ;
 
 stmt_list ::= stmt:s                 {: RESULT = single(s); :}
+
             | stmt_list:l stmt:s     {: RESULT = combine(l, s); :}
             | stmt_list:l error      {: RESULT = l; :}   /* recovers from syntax errors in a stmt and moves on */
             ;
@@ -199,15 +198,15 @@ stmt ::= expr_stmt:s NEWLINE   {: RESULT = s; :}
 expr_stmt ::= expr:e       {: RESULT = new ExprStmt(exleft, exright, e); :}
             ;
 
-expr ::= identifier:id                              {: RESULT = id; :}
-       | literal:l                                  {: RESULT = l; :}
-       | LPAREN:lp expr:e RPAREN:rp                 {: RESULT = e; :}
-       | LBRACK:lb list_expr:le RBRACK:rb           {: RESULT = new ListExpr(lbxleft, rbxright, le); :}
-       | member_expr:e                              {: RESULT = e; :}
-       | index_expr:e                               {: RESULT = e; :}
-       | binary_expr:e                              {: RESULT = e; :}
-   /*   | ID:id LPAREN:lp list_expr:le RPAREN:rp     {: RESULT = new CallExpr(idxleft, rpxright, id, le); :}*/
-       | MINUS:op expr:e                            {: RESULT = new UnaryExpr(opxleft, exright, op, e); :}
+expr ::= identifier:id                                  {: RESULT = id; :}
+       | literal:l                                      {: RESULT = l; :}
+       | LBRACK:lb list_expr:le RBRACK:rb               {: RESULT = new ListExpr(lbxleft, rbxright, le); :}
+       | LPAREN:lp expr:e RPAREN:rp                     {: RESULT = e; :}
+       | member_expr:e                                  {: RESULT = e; :}
+       | index_expr:e                                   {: RESULT = e; :}
+       | binary_expr:e                                  {: RESULT = e; :}
+   /*   | ID:id LPAREN:lp list_expr:le RPAREN:rp        {: RESULT = new CallExpr(idxleft, rpxright, id, le); :}*/
+       | MINUS:op expr:e                                {: RESULT = new UnaryExpr(opxleft, exright, op, e); :}
        ;
 
 list_expr ::= list_expr:le COMMA:op expr:e   {: RESULT = combine(le, e); :}
@@ -224,18 +223,17 @@ index_expr ::= expr:e1 LBRACK:lb expr:e2 RBRACK:rb      {: RESULT = new IndexExp
              ;
 
 binary_expr ::= expr:e1 PLUS:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 MINUS:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 MULT:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 INTDIV:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
               ;
+
 
 member_expr ::= expr:e PERIOD:p identifier:id            {: RESULT = new MemberExpr(exleft, idxright, e, id); :}
               ;
               
 identifier ::= ID:id                             {: RESULT = new Identifier(idxleft, idxright, id); :}
              ;
-
-/*assign_expr ::= expr:e                            {: RESULT = e; :}
-              ;
-              | identifier:id EQUALS assign_expr:e          {: RESULT = new VarAssignExpr(idxleft, exright, id, e); :}
-              | index_expr:ie EQUALS assign_expr:e  {: RESULT = new VarAssignExpr(iexleft, exright, ie, e); :}*/
 
 
 /* Observe how the left and right source code locations are collected from e1 and e2 */
