@@ -120,6 +120,24 @@ IntegerLiteral = 0 | [1-9][0-9]*
   /* operators */
   "+"                            { return symbol(ChocoPyTokens.PLUS, yytext()); }
   "-"                            { return symbol(ChocoPyTokens.MINUS, yytext()); }
+  "*"                            { return symbol(ChocoPyTokens.MULT, yytext()); }
+  "//"                           { return symbol(ChocoPyTokens.INTDIV, yytext()); }
+  "%"                            { return symbol(ChocoPyTokens.MOD, yytext()); }
+  "<"                            { return symbol(ChocoPyTokens.LTHAN, yytext()); }
+  ">"                            { return symbol(ChocoPyTokens.GTHAN, yytext()); }
+  "<="                           { return symbol(ChocoPyTokens.LEQ, yytext()); }
+  ">="                           { return symbol(ChocoPyTokens.GEQ, yytext()); }
+  "=="                           { return symbol(ChocoPyTokens.EQUALSEQUALS, yytext()); }
+  "!="                           { return symbol(ChocoPyTokens.NOTEQUALS, yytext()); }
+  "="                            { return symbol(ChocoPyTokens.EQUALS, yytext()); }
+  "("                            { return symbol(ChocoPyTokens.LPAREN, yytext()); }
+  ")"                            { return symbol(ChocoPyTokens.RPAREN, yytext()); }
+  "["                            { return symbol(ChocoPyTokens.LBRACK, yytext()); }
+  "]"                            { return symbol(ChocoPyTokens.RBRACK, yytext()); }
+  ","                            { return symbol(ChocoPyTokens.COMMA, yytext()); }
+  ":"                            { return symbol(ChocoPyTokens.COLON, yytext()); }
+  "."                            { return symbol(ChocoPyTokens.PERIOD, yytext()); }
+  "->"                           { return symbol(ChocoPyTokens.RARROW, yytext()); }
   
   /* Line structure */
   /* whitespace */
