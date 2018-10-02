@@ -169,6 +169,7 @@ non terminal IndexExpr         index_expr;
 non terminal MemberExpr        member_expr;
 non terminal List<Expr>        list_expr;
 non terminal Literal           literal;
+non terminal Identifier        identifier;
 /*non terminal AssignExpr        assign_expr;*/ //WIP
 
 /* Precedences */
@@ -198,7 +199,7 @@ stmt ::= expr_stmt:s NEWLINE   {: RESULT = s; :}
 expr_stmt ::= expr:e       {: RESULT = new ExprStmt(exleft, exright, e); :}
             ;
 
-expr ::= ID:id                                      {: RESULT = new Identifier(idxleft, idxright, id); :}
+expr ::= identifier:id                              {: RESULT = id; :}
        | literal:l                                  {: RESULT = l; :}
        | LPAREN:lp expr:e RPAREN:rp                 {: RESULT = e; :}
        | LBRACK:lb list_expr:le RBRACK:rb           {: RESULT = new ListExpr(lbxleft, rbxright, le); :}
@@ -225,12 +226,15 @@ index_expr ::= expr:e1 LBRACK:lb expr:e2 RBRACK:rb      {: RESULT = new IndexExp
 binary_expr ::= expr:e1 PLUS:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
               ;
 
-member_expr ::= expr:e PERIOD:p ID:id            {: RESULT = new MemberExpr(exleft, idxright, e, id); :}
+member_expr ::= expr:e PERIOD:p identifier:id            {: RESULT = new MemberExpr(exleft, idxright, e, id); :}
               ;
+              
+identifier ::= ID:id                             {: RESULT = new Identifier(idxleft, idxright, id); :}
+             ;
 
 /*assign_expr ::= expr:e                            {: RESULT = e; :}
               ;
-              | ID:id EQUALS assign_expr:e          {: RESULT = new VarAssignExpr(idxleft, exright, id, e); :}
+              | identifier:id EQUALS assign_expr:e          {: RESULT = new VarAssignExpr(idxleft, exright, id, e); :}
               | index_expr:ie EQUALS assign_expr:e  {: RESULT = new VarAssignExpr(iexleft, exright, ie, e); :}*/
 
 
