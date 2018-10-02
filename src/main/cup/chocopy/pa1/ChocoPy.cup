@@ -208,7 +208,7 @@ list_expr ::= list_expr:le COMMA:op expr:e   {: RESULT = combine(le, e); :}
 literal ::= BOOL:b          {: RESULT = new BooleanLiteral(bxleft, bxright, b); :}
           | NUMBER:n        {: RESULT = new IntegerLiteral(nxleft, nxright, n); :}
           | NONE:na         {: RESULT = new NoneLiteral(naxleft, naxright); :}
-          | STRING:s        {: RESULT = new StringLiteral(sxleft, sxright, s); :} //UGLY HACK!
+          | STRING:s        {: RESULT = new StringLiteral(sxleft, sxright, s); :}
           ;
 
 
