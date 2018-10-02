@@ -161,6 +161,10 @@ terminal String UNUSED;    // reserved but unused keywords
 
 /* Declaration of nonterminal symbols (defined in production rules below) */
 non terminal Program           program;
+/*
+non terminal TypedVar          typed_var;
+non terminal Type              type;
+*/
 non terminal List<Declaration> top_level_decl;
 non terminal List<Stmt>        stmt_list;
 non terminal Stmt              stmt, expr_stmt;
@@ -186,8 +190,15 @@ program ::= top_level_decl:d stmt_list:s   {: RESULT = new Program(d.isEmpty() ?
 top_level_decl ::= /* not implemented; matches empty string */ {: RESULT = empty(); :}
                 ;
 
-stmt_list ::= stmt:s                 {: RESULT = single(s); :}
+/*typed_var ::= identifier:id COLON type:t {: RESULT = new TypedVar(idxleft, txright, id, t); :}
+            ;
 
+type::= identifier:id                    {: RESULT = new ClassType(idxleft, idxright, id); :}
+      | LBRACK:lb type:t RBRACK:rb       {: RESULT = new ListType(lbxleft, rbxright, t); :}
+      |                                  {: RESULT = new NoneType(); :}
+      ;*/
+
+stmt_list ::= stmt:s                 {: RESULT = single(s); :}
             | stmt_list:l stmt:s     {: RESULT = combine(l, s); :}
             | stmt_list:l error      {: RESULT = l; :}   /* recovers from syntax errors in a stmt and moves on */
             ;
@@ -200,6 +211,8 @@ expr_stmt ::= PASS:p                                {: RESULT = new PassStmt(pxl
             | expr:e                                {: RESULT = new ExprStmt(exleft, exright, e); :}
             | RETURN:r optionalRet:e                {: RESULT = new ReturnStmt(rxleft, exright, e); :}
             | identifier:id EQUALS assign_expr:ae   {: RESULT = new VarAssignStmt(idxleft, aexright, id, ae); :}
+            | member_expr:me EQUALS assign_expr:ae  {: RESULT = new MemberAssignStmt(mexleft, aexright, me, ae); :}
+            | index_expr:ie EQUALS assign_expr:ae   {: RESULT = new IndexAssignStmt(iexleft, aexright, ie, ae); :}
             ;
 
 optionalRet ::= expr:e {: RESULT = e; :}
