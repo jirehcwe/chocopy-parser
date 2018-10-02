@@ -120,7 +120,11 @@ IntegerLiteral = 0 | [1-9][0-9]*
   /* operators */
   "+"                            { return symbol(ChocoPyTokens.PLUS, yytext()); }
   "-"                            { return symbol(ChocoPyTokens.MINUS, yytext()); }
-  
+  "["                            { return symbol(ChocoPyTokens.LBRACK, yytext()); }
+  "]"                            { return symbol(ChocoPyTokens.RBRACK, yytext()); }
+  "("                            { return symbol(ChocoPyTokens.LPAREN, yytext()); }
+  ")"                            { return symbol(ChocoPyTokens.RPAREN, yytext()); }
+
   /* Line structure */
   /* whitespace */
   {WhiteSpace}                   { /* ignore */ }
