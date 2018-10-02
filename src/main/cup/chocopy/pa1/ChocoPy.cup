@@ -134,6 +134,7 @@ terminal String RBRACK;   // terminal for square bracket "]"
 terminal String COMMA;    // terminal for comma
 terminal Integer NUMBER;  // the lexer provides a value of type `Integer`
 terminal String STRING;   // the STRING Literal
+terminal String ID;       //
 terminal boolean BOOL;
 terminal UNRECOGNIZED;    // produced by the lexer on error; no syntax rule should contain this token
 
@@ -164,11 +165,15 @@ non terminal List<Declaration> top_level_decl;
 non terminal List<Stmt>        stmt_list;
 non terminal Stmt              stmt, expr_stmt;
 non terminal Expr              expr, binary_expr;
+non terminal IndexExpr         index_expr;
+non terminal MemberExpr        member_expr;
 non terminal List<Expr>        list_expr;
 non terminal Literal           literal;
+/*non terminal AssignExpr        assign_expr;*/ //WIP
 
 /* Precedences */
 precedence left PLUS, MINUS;
+precedence left PERIOD, COMMA, LBRACK, RBRACK;
 
 /* Declare the start rule */
 start with program;
@@ -193,13 +198,16 @@ stmt ::= expr_stmt:s NEWLINE   {: RESULT = s; :}
 expr_stmt ::= expr:e       {: RESULT = new ExprStmt(exleft, exright, e); :}
             ;
 
-expr ::= binary_expr:e     {: RESULT = e; :}
-       | literal:l         {: RESULT = l; :}
-       | MINUS:op expr:e   {: RESULT = new UnaryExpr(opxleft, exright, op, e); :}
-       | LBRACK:lb list_expr:le RBRACK:rb {: RESULT = new ListExpr(lbxleft, rbxright, le); :}
+expr ::= ID:id                                      {: RESULT = new Identifier(idxleft, idxright, id); :}
+       | literal:l                                  {: RESULT = l; :}
+       | LPAREN:lp expr:e RPAREN:rp                 {: RESULT = e; :}
+       | LBRACK:lb list_expr:le RBRACK:rb           {: RESULT = new ListExpr(lbxleft, rbxright, le); :}
+       | member_expr:e                              {: RESULT = e; :}
+       | index_expr:e                               {: RESULT = e; :}
+       | binary_expr:e                              {: RESULT = e; :}
+   /*   | ID:id LPAREN:lp list_expr:le RPAREN:rp     {: RESULT = new CallExpr(idxleft, rpxright, id, le); :}*/
+       | MINUS:op expr:e                            {: RESULT = new UnaryExpr(opxleft, exright, op, e); :}
        ;
-
-  /*| LPAREN:op1 expr:e RPAREN:op2 {: RESULT = new ExprStmt(exleft, exright, e); :} WIP: was trying to implement expressions in parenthesis.*/
 
 list_expr ::= list_expr:le COMMA:op expr:e   {: RESULT = combine(le, e); :}
             | expr:e                         {: RESULT = single(e); :}
@@ -211,7 +219,19 @@ literal ::= BOOL:b          {: RESULT = new BooleanLiteral(bxleft, bxright, b); 
           | STRING:s        {: RESULT = new StringLiteral(sxleft, sxright, s); :}
           ;
 
+index_expr ::= expr:e1 LBRACK:lb expr:e2 RBRACK:rb      {: RESULT = new IndexExpr(e1xleft, rbxright, e1, e2); :}
+             ;
 
-binary_expr ::= expr:e1 PLUS:op expr:e2         {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+binary_expr ::= expr:e1 PLUS:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
               ;
+
+member_expr ::= expr:e PERIOD:p ID:id            {: RESULT = new MemberExpr(exleft, idxright, e, id); :}
+              ;
+
+/*assign_expr ::= expr:e                            {: RESULT = e; :}
+              ;
+              | ID:id EQUALS assign_expr:e          {: RESULT = new VarAssignExpr(idxleft, exright, id, e); :}
+              | index_expr:ie EQUALS assign_expr:e  {: RESULT = new VarAssignExpr(iexleft, exright, ie, e); :}*/
+
+
 /* Observe how the left and right source code locations are collected from e1 and e2 */

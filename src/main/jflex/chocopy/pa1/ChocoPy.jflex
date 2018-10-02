@@ -69,7 +69,7 @@ import java_cup.runtime.*;
 
 WhiteSpace = [ \t]
 LineBreak  = \r|\n|\r\n
-
+Ident = [a-zA-Z$_][a-zA-Z0-9$_]*
 IntegerLiteral = 0 | [1-9][0-9]*
 
 %state STRINGMODE
@@ -116,6 +116,9 @@ IntegerLiteral = 0 | [1-9][0-9]*
   "try"                          { return symbol(ChocoPyTokens.UNUSED, yytext()); }
   "with"                         { return symbol(ChocoPyTokens.UNUSED, yytext()); }
   "yield"                        { return symbol(ChocoPyTokens.UNUSED, yytext()); }
+
+  /* names */
+  {Ident}                        { return symbol(ChocoPyTokens.ID, yytext()); }
 
   /* delimiters */
   {LineBreak} {WhiteSpace}* {LineBreak} { return symbol(ChocoPyTokens.NEWLINE); }
