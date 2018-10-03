@@ -51,7 +51,7 @@ import java.util.*;
             stack.push(stackCounter);
             yypushback(1);
             //System.out.println("PUSHED COUNTER: " + stackCounter);
-            yybegin(YYINITIAL);
+            yybegin(YYINITIAL2);
             return symbol(ChocoPyTokens.INDENT);
         }
         else if (stackCounter < stack.peek())
@@ -126,11 +126,16 @@ Comment = [#][^\n]*
 
 %state STRINGMODE
 %state INDENTMODE
+%state YYINITIAL2
 
 %%
 
-
 <YYINITIAL> {
+    [\n\r \t]       { /*System.out.println("IGNORED!");*/ }
+    [^\n\r \t]      { yypushback(1); yybegin(YYINITIAL2); }
+}
+
+<YYINITIAL2> {
 
   /* keywords */
   "False"                        { return symbol(ChocoPyTokens.BOOL, false); }
@@ -210,7 +215,7 @@ Comment = [#][^\n]*
 }
 
 <STRINGMODE> {
-  \"                             { yybegin(YYINITIAL); return strSymbol(string.toString()); }
+  \"                             { yybegin(YYINITIAL2); return strSymbol(string.toString()); }
   [\x20-\x21\x23-\x5B\x5D-\x7E]+ { string.append(yytext()); }
   \\\"                           { string.append('\"'); }
   \\n                            { string.append('\n'); }
@@ -221,7 +226,7 @@ Comment = [#][^\n]*
 <INDENTMODE> {
   \t                             { pushTab();}
   " "                            { pushSpace(); }
-  .                              { if (shouldReturn()) {return OutputToken();} yypushback(1); yybegin(YYINITIAL); }
+  .                              { if (shouldReturn()) {return OutputToken();} yypushback(1); yybegin(YYINITIAL2); }
 }
 
 <<EOF>>                          { 

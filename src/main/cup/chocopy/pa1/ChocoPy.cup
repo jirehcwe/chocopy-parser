@@ -205,7 +205,7 @@ stmt_list ::= stmt:s                 {: RESULT = single(s); :}
 //HELPER SYMBOL FOR [var_def | func_def | class_def]*
 top_level_decl ::= top_level_decl:tld var_def:vd  {: RESULT = combine(tld, vd); :}
                  | top_level_decl:tld func_def:fd  {: RESULT = combine(tld, fd); :}
-                 //| top_level_decl:tld class_def:vd  {: RESULT = empty(); :}
+                 | top_level_decl:tld class_def:cd  {: RESULT = combine(tld, cd); :}
                  |                                {: RESULT = empty(); :}
                 ;
                 
@@ -226,15 +226,15 @@ declaration_list ::= declaration_list:dl global_decl:gd                    {: RE
                 
                 
 
-/*class_def ::= CLASS:c identifier:id1 LPAREN identifier:id2 RPAREN COLON NEWLINE INDENT class_helper:ch DEDENT
+class_def ::= CLASS:c identifier:id1 LPAREN identifier:id2 RPAREN COLON NEWLINE INDENT class_helper:ch DEDENT
                 {: RESULT = new ClassDef(cxleft, getRight(ch), id1, id2, ch); :}
             ;
 
 //HELPER SYMBOL FOR [ var_def | func_def]*
-class_helper::= var_def:v class_helper:ch             {: RESULT = combine(ch, v); :}
-              //| func_def:f class_helper:ch            {: RESULT = combine(ch, f); :}
-              //|                                       {: RESULT = empty(); :}
-              ;*/
+class_helper::= class_helper:ch var_def:v             {: RESULT = combine(ch, v); :}
+              | class_helper:ch func_def:f            {: RESULT = combine(ch, f); :}
+              |                                       {: RESULT = empty(); :}
+              ;
 
 typed_var ::= identifier:id COLON:c type:t {: RESULT = new TypedVar(idxleft, txright, id, t); :}
             ;
