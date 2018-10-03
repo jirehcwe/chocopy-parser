@@ -235,6 +235,7 @@ expr ::= identifier:id                                  {: RESULT = id; :}
        | index_expr:e                                   {: RESULT = e; :}
        | binary_expr:e                                  {: RESULT = e; :}
        | identifier:id LPAREN:lp list_expr:le RPAREN:rp         {: RESULT = new CallExpr(idxleft, rpxright, id, le); :}
+       | member_expr:e LPAREN list_expr:le RPAREN:rp    {: RESULT = new MethodCallExpr(exleft, rpxright, e, le); :}
        | MINUS:op expr:e                                {: RESULT = new UnaryExpr(opxleft, exright, op, e); :}
        ;
 
@@ -263,6 +264,8 @@ index_expr ::= expr:e1 LBRACK:lb expr:e2 RBRACK:rb      {: RESULT = new IndexExp
 
 assign_expr ::= expr:e1                                         {: RESULT = e1; :}
               | identifier:id EQUALS:e assign_expr:ae           {: RESULT = new VarAssignExpr(idxleft, aexright, id, ae); :}
+              | member_expr:me EQUALS assign_expr:ae            {: RESULT = new MemberAssignExpr(mexleft, aexright, me, ae); :}
+              | index_expr:ie EQUALS assign_expr:ae             {: RESULT = new IndexAssignExpr(iexleft, aexright, ie, ae); :}
               ;
 
 
