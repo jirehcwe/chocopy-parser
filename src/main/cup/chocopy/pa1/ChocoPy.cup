@@ -266,7 +266,7 @@ stmt ::= expr_stmt:s NEWLINE                                    {: RESULT = s; :
        
 //HELPER SYMBOLS FOR [elif expr : block]* and [else : block]?
 elif_list ::= ELIF:elif expr:e COLON block:b elif_list:el          {: RESULT = single(new IfStmt(elifxleft, getRight(el), e, b, el)); :}
-            | ELIF:elif expr:e COLON block:b                           {: RESULT = single(new IfStmt(elifxleft, bxright, e, b, empty())); :}
+            | ELIF:elif expr:e COLON block:b                           {: RESULT = single(new IfStmt(elifxleft, getRight(b), e, b, empty())); :}
             | ELSE COLON block:b                                       {: RESULT = b; :}
             ;
 
