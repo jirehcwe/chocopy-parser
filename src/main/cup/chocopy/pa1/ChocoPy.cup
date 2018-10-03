@@ -176,8 +176,6 @@ non terminal Literal           literal;
 non terminal Identifier        identifier;
 non terminal VarDef            var_def;
 
-non terminal List<Stmt>        empty_list;
-
 /* Precedences */
 precedence left OR;
 precedence left AND;
@@ -225,8 +223,6 @@ stmt ::= expr_stmt:s NEWLINE                                    {: RESULT = s; :
        | IF:i expr:e COLON block:b                                   {: RESULT = new IfStmt(ixleft, getRight(b), e, b, empty()); :}
        ;
        
-empty_list ::= {: RESULT = empty(); :}
-             ;
        
 //HELPER SYMBOLS FOR [elif expr : block]* and [else : block]?
 elif_list ::= ELIF:elif expr:e COLON block:b elif_list:el          {: RESULT = single(new IfStmt(elifxleft, getRight(el), e, b, el)); :}
