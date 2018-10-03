@@ -167,7 +167,7 @@ non terminal TypedVar          typed_var;
 non terminal TypeAnnotation    type;
 non terminal List<Declaration> top_level_decl;
 non terminal List<Stmt>        stmt_list, elif_list, optionalElse, block;
-non terminal Stmt              stmt, expr_stmt;
+non terminal Stmt              stmt, expr_stmt, elif_block;
 non terminal Expr              expr, binary_expr,optionalRet, assign_expr;
 non terminal IndexExpr         index_expr;
 non terminal MemberExpr        member_expr;
@@ -223,11 +223,13 @@ stmt ::= expr_stmt:s NEWLINE   {: RESULT = s; :}
        ;
 
 //HELPER SYMBOLS FOR [elif expr : block]* and [else : block]?
-elif_list ::= elif_list:el ELIF:el expr:e COLON block:b           {: RESULT = combine(b, el); :}
-            | ELIF:el expr:e COLON block:b                      {: RESULT = single(b); :}
-            |                                                   {: RESULT = empty(); :}
+elif_list ::= elif_block:eb elif_list:el                            {: RESULT = combine(el, eb); :}
+            | elif_block:eb                                         {: RESULT = single(eb); :}
+            |                                                       {: RESULT = empty(); :}
             ;
 
+elif_block ::= ELIF:el expr:e COLON block:b                     {: RESULT = b; :}
+             ;
 
 optionalElse::= ELSE:e COLON block:b                            {: RESULT = single(b); :}
               |                                                 {: RESULT = empty(); :}
