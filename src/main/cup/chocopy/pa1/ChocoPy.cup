@@ -222,6 +222,7 @@ stmt ::= expr_stmt:s NEWLINE                                    {: RESULT = s; :
        | IF:i expr:e COLON block:b elif_list:el                       {: RESULT = new IfStmt(ixleft, getRight(el), e, b, el); :}
        | IF:i expr:e COLON block:b                                   {: RESULT = new IfStmt(ixleft, getRight(b), e, b, empty()); :}
        | WHILE:w expr:e COLON block:b                               {: RESULT = new WhileStmt(wxleft, getRight(b), e, b); :}
+       | FOR:f identifier:id IN expr:e COLON block:b                {: RESULT = new ForStmt(fxleft, getRight(b), id,  e, b); :}
        ;
        
        
