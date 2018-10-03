@@ -122,6 +122,8 @@ terminal String EQUALS;    // the lexer provides a value of type `String`
 terminal String COLON;
 terminal String PERIOD;
 terminal String RARROW;
+terminal INDENT;
+terminal DEDENT;
 
 
 
