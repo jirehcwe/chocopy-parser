@@ -204,7 +204,7 @@ stmt_list ::= stmt:s                 {: RESULT = single(s); :}
             ;
 //HELPER SYMBOL FOR [var_def | func_def | class_def]*
 top_level_decl ::= top_level_decl:tld var_def:vd  {: RESULT = combine(tld, vd); :}
-                 //| top_level_decl:tld func_def:vd  {: RESULT = empty(); :}
+                 | top_level_decl:tld func_def:fd  {: RESULT = combine(tld, fd); :}
                  //| top_level_decl:tld class_def:vd  {: RESULT = empty(); :}
                  |                                {: RESULT = empty(); :}
                 ;
