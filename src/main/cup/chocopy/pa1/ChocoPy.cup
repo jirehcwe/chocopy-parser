@@ -161,10 +161,8 @@ terminal String UNUSED;    // reserved but unused keywords
 
 /* Declaration of nonterminal symbols (defined in production rules below) */
 non terminal Program           program;
-/*
 non terminal TypedVar          typed_var;
-non terminal Type              type;
-*/
+non terminal TypeAnnotation    type;
 non terminal List<Declaration> top_level_decl;
 non terminal List<Stmt>        stmt_list;
 non terminal Stmt              stmt, expr_stmt;
@@ -174,11 +172,12 @@ non terminal MemberExpr        member_expr;
 non terminal List<Expr>        list_expr;
 non terminal Literal           literal;
 non terminal Identifier        identifier;
+non terminal VarDef            var_def;
 
 /* Precedences */
 precedence left PLUS, MINUS;
 precedence left MULT, INTDIV;
-precedence left PERIOD, COMMA, LBRACK, RBRACK;
+precedence left COLON, PERIOD, COMMA, LBRACK, RBRACK;
 
 /* Declare the start rule */
 start with program;
@@ -187,16 +186,25 @@ start with program;
 program ::= top_level_decl:d stmt_list:s   {: RESULT = new Program(d.isEmpty() ? getLeft(s) : getLeft(d), getRight(s), d, s); :}
           ;
 
-top_level_decl ::= /* not implemented; matches empty string */ {: RESULT = empty(); :}
+top_level_decl ::= top_level_decl:tld var_def:vd  {: RESULT = combine(tld, vd); :}
+                 //| top_level_decl:tld func_def:vd  {: RESULT = empty(); :}
+                 //| top_level_decl:tld class_def:vd  {: RESULT = empty(); :}
+                 |                                {: RESULT = empty(); :}
                 ;
 
-/*typed_var ::= identifier:id COLON type:t {: RESULT = new TypedVar(idxleft, txright, id, t); :}
+typed_var ::= identifier:id COLON:c type:t {: RESULT = new TypedVar(idxleft, txright, id, t); :}
             ;
+                
+identifier ::= ID:id                             {: RESULT = new Identifier(idxleft, idxright, id); :}
+             ;
 
-type::= identifier:id                    {: RESULT = new ClassType(idxleft, idxright, id); :}
+type::= identifier:id                    {: RESULT = new ClassType(idxleft, idxright, id.name); :}
       | LBRACK:lb type:t RBRACK:rb       {: RESULT = new ListType(lbxleft, rbxright, t); :}
-      |                                  {: RESULT = new NoneType(); :}
-      ;*/
+      | STRING:s                         {: RESULT = new ClassType(sxleft, sxright, s); :}
+      ;
+      
+var_def ::= typed_var:tv EQUALS:e literal:l NEWLINE:n   {: RESULT = new VarDef(tvxleft, lxright, tv, l); :}
+          ;
 
 stmt_list ::= stmt:s                 {: RESULT = single(s); :}
             | stmt_list:l stmt:s     {: RESULT = combine(l, s); :}
@@ -226,7 +234,7 @@ expr ::= identifier:id                                  {: RESULT = id; :}
        | member_expr:e                                  {: RESULT = e; :}
        | index_expr:e                                   {: RESULT = e; :}
        | binary_expr:e                                  {: RESULT = e; :}
-   /*   | ID:id LPAREN:lp list_expr:le RPAREN:rp        {: RESULT = new CallExpr(idxleft, rpxright, id, le); :}*/
+       | identifier:id LPAREN:lp list_expr:le RPAREN:rp         {: RESULT = new CallExpr(idxleft, rpxright, id, le); :}
        | MINUS:op expr:e                                {: RESULT = new UnaryExpr(opxleft, exright, op, e); :}
        ;
 
@@ -257,8 +265,6 @@ assign_expr ::= expr:e1                                         {: RESULT = e1; 
               | identifier:id EQUALS:e assign_expr:ae           {: RESULT = new VarAssignExpr(idxleft, aexright, id, ae); :}
               ;
 
-identifier ::= ID:id                             {: RESULT = new Identifier(idxleft, idxright, id); :}
-             ;
 
 
 /* Observe how the left and right source code locations are collected from e1 and e2 */

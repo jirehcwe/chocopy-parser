@@ -132,7 +132,7 @@ IntegerLiteral = 0 | [1-9][0-9]*
   "+"                            { return symbol(ChocoPyTokens.PLUS, yytext()); }
   "-"                            { return symbol(ChocoPyTokens.MINUS, yytext()); }
   "*"                            { return symbol(ChocoPyTokens.MULT, yytext()); }
-  "/"                           { return symbol(ChocoPyTokens.INTDIV, yytext()); }
+  "/"                            { return symbol(ChocoPyTokens.INTDIV, yytext()); }
   "%"                            { return symbol(ChocoPyTokens.MOD, yytext()); }
   "<"                            { return symbol(ChocoPyTokens.LTHAN, yytext()); }
   ">"                            { return symbol(ChocoPyTokens.GTHAN, yytext()); }
