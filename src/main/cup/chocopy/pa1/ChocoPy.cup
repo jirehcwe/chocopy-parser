@@ -164,8 +164,9 @@ terminal String UNUSED;    // reserved but unused keywords
 /* Declaration of nonterminal symbols (defined in production rules below) */
 non terminal Program           program;
 non terminal TypedVar          typed_var;
+non terminal List<TypedVar>    typed_var_list, tvlh;
 non terminal TypeAnnotation    type;
-non terminal List<Declaration> top_level_decl;
+non terminal List<Declaration> top_level_decl, declaration_list;
 non terminal List<Stmt>        stmt_list, elif_list, optionalElse, block;
 non terminal Stmt              stmt, expr_stmt, elif_block;
 non terminal Expr              expr, binary_expr,optionalRet, assign_expr;
@@ -175,6 +176,7 @@ non terminal List<Expr>        list_expr;
 non terminal Literal           literal;
 non terminal Identifier        identifier;
 non terminal VarDef            var_def;
+non terminal FuncDef           func_def;
 
 /* Precedences */
 precedence left OR;
@@ -203,6 +205,17 @@ top_level_decl ::= top_level_decl:tld var_def:vd  {: RESULT = combine(tld, vd); 
                  //| top_level_decl:tld class_def:vd  {: RESULT = empty(); :}
                  |                                {: RESULT = empty(); :}
                 ;
+                
+func_def ::= DEF:def identifier:id LPAREN typed_var_list:tvl RPAREN RARROW type:t COLON NEWLINE INDENT declaration_list:dl stmt_list:sl DEDENT     {: RESULT = new FuncDef(defxleft, getRight(sl), id, tv1, t, dl, sl); :)
+
+typed_var_list ::= typed_var_list:tvl COMMA typed_var:tv    {: RESULT = combine(tvlh, tv); :}
+                 | typed_var:tv                             {: RESULT = single(tv); :}
+                 |                                          {: RESULT = empty(); :}
+                 
+declaration_list ::= declaration_list:dl                    {: RESULT = empty(); }
+                   ;
+                
+                
 
 typed_var ::= identifier:id COLON:c type:t {: RESULT = new TypedVar(idxleft, txright, id, t); :}
             ;
