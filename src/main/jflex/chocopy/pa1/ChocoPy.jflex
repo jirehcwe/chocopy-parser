@@ -1,5 +1,6 @@
 package chocopy.pa1;
 import java_cup.runtime.*;
+import java.util.*;
 
 %%
 
@@ -30,6 +31,36 @@ import java_cup.runtime.*;
     // or methods to use in the action code that emits tokens upon recognizing a lexeme.
     // Hint: this is a good place to maintain state for handling indentation
 
+    Stack<Integer> stack = new Stack<Integer>();
+
+    int stackCounter = 0;
+
+    private void pushSpace(){
+        stackCounter++;
+    }
+
+    private void pushTab(){
+        int result = 8 - (stackCounter + 8)%8;
+        stackCounter += result;
+    }
+
+    private Symbol OutputToken(){
+        if (stackCounter > stack.peek())
+        {
+            stack.push(stackCounter);
+            return symbol(ChocoPyTokens.INDENT);
+        }
+        else if (stackCounter < stack.peek())
+        {
+            while (stack.peek() > stackCounter)
+            {
+                stack.pop();
+                //return dedent and stay in INDENTMODE
+            }
+        }
+
+        return null;
+    }
 
 
 
@@ -72,7 +103,9 @@ LineBreak  = \r|\n|\r\n
 Ident = [a-zA-Z$_][a-zA-Z0-9$_]*
 IntegerLiteral = 0 | [1-9][0-9]*
 
+
 %state STRINGMODE
+%state INDENTMODE
 
 %%
 
@@ -121,8 +154,8 @@ IntegerLiteral = 0 | [1-9][0-9]*
   {Ident}                        { return symbol(ChocoPyTokens.ID, yytext()); }
 
   /* delimiters */
-  {LineBreak} {WhiteSpace}* {LineBreak} { return symbol(ChocoPyTokens.NEWLINE); }
-  {LineBreak}                    { return symbol(ChocoPyTokens.NEWLINE); }
+  {LineBreak} {WhiteSpace}* {LineBreak} { yybegin(INDENTMODE); return symbol(ChocoPyTokens.NEWLINE); }
+  {LineBreak}                    { yybegin(INDENTMODE); return symbol(ChocoPyTokens.NEWLINE); }
    
   /* literals */
   {IntegerLiteral}               { return symbol(ChocoPyTokens.NUMBER, Integer.parseInt(yytext())); }
@@ -162,6 +195,12 @@ IntegerLiteral = 0 | [1-9][0-9]*
   \\n                            { string.append('\n'); }
   \\t                            { string.append('\t'); }
   \\                             { string.append('\\'); }
+}
+
+<INDENTMODE> {
+  \t                             { pushTab();}
+  " "                            { count();
+                                 { yybegin(YYINITIAL); stackCounter = 0; return }
 }
 
 <<EOF>>                          { return symbol(ChocoPyTokens.EOF); }
