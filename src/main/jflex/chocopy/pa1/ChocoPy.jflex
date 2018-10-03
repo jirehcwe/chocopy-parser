@@ -48,18 +48,25 @@ import java.util.*;
         if (stackCounter > stack.peek())
         {
             stack.push(stackCounter);
+            //System.out.println("PUSHED COUNTER: " + stackCounter);
+            yybegin(YYINITIAL);
             return symbol(ChocoPyTokens.INDENT);
         }
         else if (stackCounter < stack.peek())
         {
-            while (stack.peek() > stackCounter)
-            {
-                stack.pop();
-                //return dedent and stay in INDENTMODE
-            }
+            //System.out.println("POPPED COUNTER!");
+            yypushback(1);
+            stack.pop();
+            return symbol(ChocoPyTokens.DEDENT);
         }
-
-        return null;
+        //SHOULD NEVER GET HERE!
+        else {
+            return null;
+        }
+    }
+    
+    private boolean shouldReturn() {
+        return stack.peek() != stackCounter;
     }
 
 
@@ -95,6 +102,10 @@ import java.util.*;
     }
 
 %}
+
+%init{
+    stack.push(0);
+%init}
 
 /* Macros (regexes used in rules below) */
 
@@ -154,8 +165,8 @@ IntegerLiteral = 0 | [1-9][0-9]*
   {Ident}                        { return symbol(ChocoPyTokens.ID, yytext()); }
 
   /* delimiters */
-  {LineBreak} {WhiteSpace}* {LineBreak} { yybegin(INDENTMODE); return symbol(ChocoPyTokens.NEWLINE); }
-  {LineBreak}                    { yybegin(INDENTMODE); return symbol(ChocoPyTokens.NEWLINE); }
+  {LineBreak} {WhiteSpace}* {LineBreak} { yybegin(INDENTMODE); stackCounter = 0; return symbol(ChocoPyTokens.NEWLINE); }
+  {LineBreak}                    { yybegin(INDENTMODE); stackCounter = 0; return symbol(ChocoPyTokens.NEWLINE); }
    
   /* literals */
   {IntegerLiteral}               { return symbol(ChocoPyTokens.NUMBER, Integer.parseInt(yytext())); }
@@ -199,8 +210,8 @@ IntegerLiteral = 0 | [1-9][0-9]*
 
 <INDENTMODE> {
   \t                             { pushTab();}
-  " "                            { count();
-                                 { yybegin(YYINITIAL); stackCounter = 0; return }
+  " "                            { pushSpace(); }
+  .                              { if (shouldReturn()) {return OutputToken();} yybegin(YYINITIAL); }
 }
 
 <<EOF>>                          { return symbol(ChocoPyTokens.EOF); }
