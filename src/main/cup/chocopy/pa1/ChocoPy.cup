@@ -221,6 +221,7 @@ var_def ::= typed_var:tv EQUALS:e literal:l NEWLINE:n   {: RESULT = new VarDef(t
 stmt ::= expr_stmt:s NEWLINE                                    {: RESULT = s; :}
        | IF:i expr:e COLON block:b elif_list:el                       {: RESULT = new IfStmt(ixleft, getRight(el), e, b, el); :}
        | IF:i expr:e COLON block:b                                   {: RESULT = new IfStmt(ixleft, getRight(b), e, b, empty()); :}
+       | WHILE:w expr:e COLON block:b                               {: RESULT = new WhileStmt(wxleft, getRight(b), e, b); :}
        ;
        
        
