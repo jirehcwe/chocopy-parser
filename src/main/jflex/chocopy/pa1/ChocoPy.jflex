@@ -34,6 +34,7 @@ import java.util.*;
     Stack<Integer> stack = new Stack<Integer>();
 
     int stackCounter = 0;
+    int foobar = 5;
 
     private void pushSpace(){
         stackCounter++;
@@ -103,6 +104,12 @@ import java.util.*;
 
 %}
 
+/*%eofval{
+    // ABCDEFG 
+    System.out.println("EOF REACHED! FOOBAR!");
+    return new java_cup.runtime.Symbol(<CUPSYM>.EOF);
+%eofval}*/
+
 %init{
     stack.push(0);
 %init}
@@ -113,6 +120,7 @@ WhiteSpace = [ \t]
 LineBreak  = \r|\n|\r\n
 Ident = [a-zA-Z$_][a-zA-Z0-9$_]*
 IntegerLiteral = 0 | [1-9][0-9]*
+Comment = [#][^\n]*
 
 
 %state STRINGMODE
@@ -165,8 +173,8 @@ IntegerLiteral = 0 | [1-9][0-9]*
   {Ident}                        { return symbol(ChocoPyTokens.ID, yytext()); }
 
   /* delimiters */
-  {LineBreak} {WhiteSpace}* {LineBreak} { yybegin(INDENTMODE); stackCounter = 0; return symbol(ChocoPyTokens.NEWLINE); }
-  {LineBreak}                    { yybegin(INDENTMODE); stackCounter = 0; return symbol(ChocoPyTokens.NEWLINE); }
+  {LineBreak} ({WhiteSpace}* {Comment}? {LineBreak})+   { yybegin(INDENTMODE); stackCounter = 0; return symbol(ChocoPyTokens.NEWLINE); }
+  {LineBreak}                                           { yybegin(INDENTMODE); stackCounter = 0; return symbol(ChocoPyTokens.NEWLINE); }
    
   /* literals */
   {IntegerLiteral}               { return symbol(ChocoPyTokens.NUMBER, Integer.parseInt(yytext())); }
@@ -197,6 +205,7 @@ IntegerLiteral = 0 | [1-9][0-9]*
   /* Line structure */
   /* whitespace */
   {WhiteSpace}                   { /* ignore */ }
+  {Comment}                      { /* ignore */ }
 }
 
 <STRINGMODE> {
@@ -211,10 +220,19 @@ IntegerLiteral = 0 | [1-9][0-9]*
 <INDENTMODE> {
   \t                             { pushTab();}
   " "                            { pushSpace(); }
-  .                              { if (shouldReturn()) {return OutputToken();} yybegin(YYINITIAL); }
+  .                              { if (shouldReturn()) {return OutputToken();} yypushback(1); yybegin(YYINITIAL); }
 }
 
-<<EOF>>                          { return symbol(ChocoPyTokens.EOF); }
+<<EOF>>                          { 
+    if (stack.peek() != 0) {
+        stack.pop();
+        zzAtEOF = false;
+        return symbol(ChocoPyTokens.DEDENT);
+    }
+    else {
+        return symbol(ChocoPyTokens.EOF);
+    }
+}
 
 /* error fallback */
 [^]                              { return symbol(ChocoPyTokens.UNRECOGNIZED); }
