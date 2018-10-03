@@ -166,7 +166,7 @@ non terminal Program           program;
 non terminal TypedVar          typed_var;
 non terminal TypeAnnotation    type;
 non terminal List<Declaration> top_level_decl;
-non terminal List<Stmt>        stmt_list;
+non terminal List<Stmt>        stmt_list, elif_list, optionalElse, block;
 non terminal Stmt              stmt, expr_stmt;
 non terminal Expr              expr, binary_expr,optionalRet, assign_expr;
 non terminal IndexExpr         index_expr;
@@ -184,6 +184,7 @@ precedence nonassoc EQUALSEQUALS, NOTEQUALS, GTHAN, GEQ, LTHAN, LEQ, IS;
 precedence left PLUS, MINUS;
 precedence left MULT, INTDIV, MOD;
 precedence left PERIOD, COMMA, LBRACK, RBRACK;
+precedence left ELIF;
 
 /* Declare the start rule */
 start with program;
@@ -218,6 +219,18 @@ var_def ::= typed_var:tv EQUALS:e literal:l NEWLINE:n   {: RESULT = new VarDef(t
           ;
 
 stmt ::= expr_stmt:s NEWLINE   {: RESULT = s; :}
+       | IF:i expr:e block:b elif_list:el optionalElse:oe         {: RESULT = new IfStmt(ixleft, oexright, e, el, oe); :}
+       ;
+
+//HELPER SYMBOLS FOR [elif expr : block]* and [else : block]?
+elif_list ::= elif_list:el ELIF:el expr:e COLON block:b           {: RESULT = combine(b, el); :}
+            | ELIF:el expr:e COLON block:b                      {: RESULT = single(b); :}
+            |                                                   {: RESULT = empty(); :}
+            ;
+
+
+optionalElse::= ELSE:e COLON block:b                            {: RESULT = single(b); :}
+              |                                                 {: RESULT = empty(); :}
               ;
 
 //THIS IS "SIMPLE_STATEMENT"!
@@ -232,6 +245,9 @@ expr_stmt ::= PASS:p                                {: RESULT = new PassStmt(pxl
 optionalRet ::= expr:e {: RESULT = e; :}
               |
               ;
+
+block ::= NEWLINE INDENT stmt_list:sl DEDENT        {: RESULT = sl; :}
+        ;
               
 literal ::= BOOL:b          {: RESULT = new BooleanLiteral(bxleft, bxright, b); :}
           | NUMBER:n        {: RESULT = new IntegerLiteral(nxleft, nxright, n); :}
@@ -250,7 +266,7 @@ expr ::= identifier:id                                  {: RESULT = id; :}
        | member_expr:e                                  {: RESULT = e; :}
        | index_expr:e                                   {: RESULT = e; :}
        | member_expr:e LPAREN list_expr:le RPAREN:rp    {: RESULT = new MethodCallExpr(exleft, rpxright, e, le); :}
-       | identifier:id LPAREN:lp list_expr:le RPAREN:rp         {: RESULT = new CallExpr(idxleft, rpxright, id, le); :}
+       | identifier:id LPAREN:lp list_expr:le RPAREN:rp {: RESULT = new CallExpr(idxleft, rpxright, id, le); :}
        | binary_expr:e                                  {: RESULT = e; :}
        | NOT:n expr:e                                   {: RESULT = new UnaryExpr(nxleft, exright, "not", e); :}
        | MINUS:op expr:e                                {: RESULT = new UnaryExpr(opxleft, exright, op, e); :}
