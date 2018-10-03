@@ -105,30 +105,23 @@ action code {:
 
 /* Declaration of terminal symbols (tokens returned by the lexer) */
 terminal NEWLINE;         // the type does not matter because we discard the value
-terminal String PLUS;     // the lexer provides a value of type `String`
-terminal String MINUS;    // the lexer provides a value of type `String`
-terminal String MULT;    // the lexer provides a value of type `String`
-terminal String INTDIV;    // the lexer provides a value of type `String`
-terminal String MOD;    // the lexer provides a value of type `String`
-
-
-terminal String LTHAN;    // the lexer provides a value of type `String`
-terminal String GTHAN;    // the lexer provides a value of type `String`
-terminal String LEQ;    // the lexer provides a value of type `String`
-terminal String GEQ;    // the lexer provides a value of type `String`
-terminal String EQUALSEQUALS;    // the lexer provides a value of type `String`
-terminal String NOTEQUALS;    // the lexer provides a value of type `String`
-terminal String EQUALS;    // the lexer provides a value of type `String`
+terminal String PLUS;   
+terminal String MINUS;  
+terminal String MULT;   
+terminal String INTDIV; 
+terminal String MOD;    
+terminal String LTHAN;  
+terminal String GTHAN;  
+terminal String LEQ;    
+terminal String GEQ;    
+terminal String EQUALSEQUALS;
+terminal String NOTEQUALS;   
+terminal String EQUALS;    
 terminal String COLON;
 terminal String PERIOD;
 terminal String RARROW;
 terminal INDENT;
 terminal DEDENT;
-
-
-
-
-
 terminal String LPAREN;   // terminal for parenthesis "("
 terminal String RPAREN;   // terminal for parenthesis ")"
 terminal String LBRACK;   // terminal for square bracket "["
@@ -136,8 +129,8 @@ terminal String RBRACK;   // terminal for square bracket "]"
 terminal String COMMA;    // terminal for comma
 terminal Integer NUMBER;  // the lexer provides a value of type `Integer`
 terminal String STRING;   // the STRING Literal
-terminal String ID;       //
-terminal boolean BOOL;
+terminal String ID;       // terminal for Identifier strings
+terminal boolean BOOL;    // terminal for booleans
 terminal UNRECOGNIZED;    // produced by the lexer on error; no syntax rule should contain this token
 
 /* Terminal Keywords */
@@ -203,16 +196,19 @@ stmt_list ::= stmt:s                 {: RESULT = single(s); :}
             | stmt_list:l error      {: RESULT = l; :}   /* recovers from syntax errors in a stmt and moves on */
             ;
 //HELPER SYMBOL FOR [var_def | func_def | class_def]*
-top_level_decl ::= top_level_decl:tld var_def:vd  {: RESULT = combine(tld, vd); :}
-                 | top_level_decl:tld func_def:fd  {: RESULT = combine(tld, fd); :}
+top_level_decl ::= top_level_decl:tld var_def:vd    {: RESULT = combine(tld, vd); :}
+                 | top_level_decl:tld func_def:fd   {: RESULT = combine(tld, fd); :}
                  | top_level_decl:tld class_def:cd  {: RESULT = combine(tld, cd); :}
-                 |                                {: RESULT = empty(); :}
+                 | top_level_decl:tld error         {: RESULT = tld; :}
+                 |                                  {: RESULT = empty(); :}
                 ;
                 
-func_def ::= DEF:def identifier:id LPAREN typed_var_list:tvl RPAREN RARROW type:t COLON NEWLINE INDENT declaration_list:dl stmt_list:sl DEDENT     {: RESULT = new FuncDef(defxleft, getRight(sl), id, tvl, t, dl, sl); :}
+func_def ::= DEF:def identifier:id LPAREN typed_var_list:tvl RPAREN RARROW type:t COLON NEWLINE INDENT declaration_list:dl stmt_list:sl DEDENT     
+                {: RESULT = new FuncDef(defxleft, getRight(sl), id, tvl, t, dl, sl); :}
            ;
 
 typed_var_list ::= typed_var_list:tvl COMMA typed_var:tv    {: RESULT = combine(tvl, tv); :}
+                 | typed_var_list:tvl COMMA error           {: RESULT = tvl; :}
                  | typed_var:tv                             {: RESULT = single(tv); :}
                  |                                          {: RESULT = empty(); :}
                  ;
@@ -221,6 +217,7 @@ declaration_list ::= declaration_list:dl global_decl:gd                    {: RE
                    | declaration_list:dl nonlocal_decl:nld                 {: RESULT = combine(dl, nld); :}
                    | declaration_list:dl var_def:vd                        {: RESULT = combine(dl, vd); :}
                    | declaration_list:dl func_def: fd                      {: RESULT = combine(dl, fd); :}
+                   | declaration_list:dl error                             {: RESULT = dl; :}
                    |                                                       {: RESULT = empty(); :}
                    ;
                 
@@ -233,12 +230,14 @@ class_def ::= CLASS:c identifier:id1 LPAREN identifier:id2 RPAREN COLON NEWLINE 
 //HELPER SYMBOL FOR [ var_def | func_def]*
 class_helper::= class_helper:ch var_def:v             {: RESULT = combine(ch, v); :}
               | class_helper:ch func_def:f            {: RESULT = combine(ch, f); :}
+              | class_helper:ch error                 {: RESULT = ch; :}
               |                                       {: RESULT = empty(); :}
               ;
 
-typed_var ::= identifier:id COLON:c type:t {: RESULT = new TypedVar(idxleft, txright, id, t); :}
+typed_var ::= identifier:id COLON:c type:t       {: RESULT = new TypedVar(idxleft, txright, id, t); :}
             ;
-                
+               
+//Raw Identifiers received from lexer are of type String, we must convert them          
 identifier ::= ID:id                             {: RESULT = new Identifier(idxleft, idxright, id); :}
              ;
 
@@ -247,35 +246,29 @@ type::= identifier:id                    {: RESULT = new ClassType(idxleft, idxr
       | STRING:s                         {: RESULT = new ClassType(sxleft, sxright, s); :}
       ;
 
-global_decl::= GLOBAL:g identifier:id NEWLINE {: RESULT = new GlobalDecl(gxleft, idxright, id); :}
+global_decl::= GLOBAL:g identifier:id NEWLINE           {: RESULT = new GlobalDecl(gxleft, idxright, id); :}
              ;
 
-nonlocal_decl::= NONLOCAL:nl identifier:id NEWLINE {: RESULT = new NonLocalDecl(nlxleft, idxright, id); :}
+nonlocal_decl::= NONLOCAL:nl identifier:id NEWLINE      {: RESULT = new NonLocalDecl(nlxleft, idxright, id); :}
                ;
       
 var_def ::= typed_var:tv EQUALS:e literal:l NEWLINE:n   {: RESULT = new VarDef(tvxleft, lxright, tv, l); :}
           ;
 
-stmt ::= expr_stmt:s NEWLINE                                    {: RESULT = s; :}
-       | IF:i expr:e COLON block:b elif_list:el                       {: RESULT = new IfStmt(ixleft, getRight(el), e, b, el); :}
+stmt ::= expr_stmt:s NEWLINE                                         {: RESULT = s; :}
+       | IF:i expr:e COLON block:b elif_list:el                      {: RESULT = new IfStmt(ixleft, getRight(el), e, b, el); :}
        | IF:i expr:e COLON block:b                                   {: RESULT = new IfStmt(ixleft, getRight(b), e, b, empty()); :}
-       | WHILE:w expr:e COLON block:b                               {: RESULT = new WhileStmt(wxleft, getRight(b), e, b); :}
-       | FOR:f identifier:id IN expr:e COLON block:b                {: RESULT = new ForStmt(fxleft, getRight(b), id,  e, b); :}
+       | WHILE:w expr:e COLON block:b                                {: RESULT = new WhileStmt(wxleft, getRight(b), e, b); :}
+       | FOR:f identifier:id IN expr:e COLON block:b                 {: RESULT = new ForStmt(fxleft, getRight(b), id,  e, b); :}
        ;
        
        
 //HELPER SYMBOLS FOR [elif expr : block]* and [else : block]?
-elif_list ::= ELIF:elif expr:e COLON block:b elif_list:el          {: RESULT = single(new IfStmt(elifxleft, getRight(el), e, b, el)); :}
+elif_list ::= ELIF:elif expr:e COLON block:b elif_list:el              {: RESULT = single(new IfStmt(elifxleft, getRight(el), e, b, el)); :}
             | ELIF:elif expr:e COLON block:b                           {: RESULT = single(new IfStmt(elifxleft, getRight(b), e, b, empty())); :}
             | ELSE COLON block:b                                       {: RESULT = b; :}
             ;
 
-/*optionalElse::= ELSE:e COLON block:b                            {: RESULT = single(b); :}
-              |                                                 {: RESULT = empty(); :}
-              ;*/
-            
-/*elif_block ::= ELIF:el expr:e COLON block:b                     {: RESULT = b; :}
-             ;*/
 
 //THIS IS "SIMPLE_STATEMENT"!
 expr_stmt ::= PASS:p                                {: RESULT = new PassStmt(pxleft, pxright); :}
@@ -300,6 +293,7 @@ literal ::= BOOL:b          {: RESULT = new BooleanLiteral(bxleft, bxright, b); 
           ;
 
 list_expr ::= list_expr:le COMMA:op expr:e   {: RESULT = combine(le, e); :}
+            | list_expr:le COMMA:op error    {: RESULT = le; :}
             | expr:e                         {: RESULT = single(e); :}
             |                                {: RESULT = empty(); :}
             ;
@@ -317,24 +311,24 @@ expr ::= identifier:id                                  {: RESULT = id; :}
        | MINUS:op expr:e                                {: RESULT = new UnaryExpr(opxleft, exright, op, e); :}
        ;
 
-binary_expr ::= expr:e1 PLUS:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
-              | expr:e1 MINUS:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
-              | expr:e1 MULT:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
-              | expr:e1 INTDIV:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
-              | expr:e1 MOD:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+binary_expr ::= expr:e1 PLUS:op expr:e2               {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 MINUS:op expr:e2              {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 MULT:op expr:e2               {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 INTDIV:op expr:e2             {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 MOD:op expr:e2                {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
               //Other binary ops
-              | expr:e1 EQUALSEQUALS:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 EQUALSEQUALS:op expr:e2       {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
               | expr:e1 NOTEQUALS:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
-              | expr:e1 LEQ:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
-              | expr:e1 GEQ:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
-              | expr:e1 LTHAN:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
-              | expr:e1 GTHAN:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
-              | expr:e1 IS:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, "is", e2); :}
-              | expr:e1 AND:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, "and", e2); :}
-              | expr:e1 OR:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, "or", e2); :}
+              | expr:e1 LEQ:op expr:e2                {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 GEQ:op expr:e2                {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 LTHAN:op expr:e2              {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 GTHAN:op expr:e2              {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 IS:op expr:e2                 {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, "is", e2); :}
+              | expr:e1 AND:op expr:e2                {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, "and", e2); :}
+              | expr:e1 OR:op expr:e2                 {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, "or", e2); :}
               ;
 
-member_expr ::= expr:e PERIOD:p identifier:id            {: RESULT = new MemberExpr(exleft, idxright, e, id); :}
+member_expr ::= expr:e PERIOD:p identifier:id           {: RESULT = new MemberExpr(exleft, idxright, e, id); :}
               ;
 
 index_expr ::= expr:e1 LBRACK:lb expr:e2 RBRACK:rb      {: RESULT = new IndexExpr(e1xleft, rbxright, e1, e2); :}

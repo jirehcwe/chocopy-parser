@@ -34,7 +34,6 @@ import java.util.*;
     Stack<Integer> stack = new Stack<Integer>();
 
     int stackCounter = 0;
-    int foobar = 5;
 
     private void pushSpace(){
         stackCounter++;
@@ -50,16 +49,14 @@ import java.util.*;
         {
             stack.push(stackCounter);
             yypushback(1);
-            //System.out.println("PUSHED COUNTER: " + stackCounter);
             yybegin(YYINITIAL2);
-            return symbol(ChocoPyTokens.INDENT);
+            return indentSymbol(ChocoPyTokens.INDENT);
         }
         else if (stackCounter < stack.peek())
         {
-            //System.out.println("POPPED COUNTER!");
             yypushback(1);
             stack.pop();
-            return symbol(ChocoPyTokens.DEDENT);
+            return indentSymbol(ChocoPyTokens.DEDENT);
         }
         //SHOULD NEVER GET HERE!
         else {
@@ -95,21 +92,29 @@ import java.util.*;
             new ComplexSymbolFactory.Location(yyline+1,yycolumn+yylength()),
             value);
     }
-
-    private Symbol strSymbol(String value) {
+    
+    /* Ugly hack for setting correct location of String objects */
+    private Symbol strSymbol(String value) {    
         return symbolFactory.newSymbol(ChocoPyTokens.terminalNames[ChocoPyTokens.STRING], ChocoPyTokens.STRING,
             new ComplexSymbolFactory.Location(yyline+1, yycolumn - value.length()),
+            new ComplexSymbolFactory.Location(yyline+1,yycolumn+yylength()),
+            value);
+    }
+    
+    /* Even uglier hack for setting correct location of Indent objects */
+    private Symbol indentSymbol(int type) {
+        return indentSymbol(type, yytext());
+    }
+    private Symbol indentSymbol(int type, Object value) {
+        return symbolFactory.newSymbol(ChocoPyTokens.terminalNames[type], type,
+            new ComplexSymbolFactory.Location(yyline+1, 1),
             new ComplexSymbolFactory.Location(yyline+1,yycolumn+yylength()),
             value);
     }
 
 %}
 
-/*%eofval{
-    // ABCDEFG 
-    System.out.println("EOF REACHED! FOOBAR!");
-    return new java_cup.runtime.Symbol(<CUPSYM>.EOF);
-%eofval}*/
+/* Initializing the stack */
 
 %init{
     stack.push(0);
@@ -130,6 +135,7 @@ Comment = [#][^\n]*
 
 %%
 
+/* Ugliest hack of them all, truncates whitespace at beginning of input. */
 <YYINITIAL> {
     [\n\r \t]       { /*System.out.println("IGNORED!");*/ }
     [^\n\r \t]      { yypushback(1); yybegin(YYINITIAL2); }
@@ -214,6 +220,7 @@ Comment = [#][^\n]*
   {Comment}                      { /* ignore */ }
 }
 
+/* Parsing a string */
 <STRINGMODE> {
   \"                             { yybegin(YYINITIAL2); return strSymbol(string.toString()); }
   [\x20-\x21\x23-\x5B\x5D-\x7E]+ { string.append(yytext()); }
@@ -223,12 +230,14 @@ Comment = [#][^\n]*
   \\                             { string.append('\\'); }
 }
 
+/* Parsing indentation */
 <INDENTMODE> {
   \t                             { pushTab();}
   " "                            { pushSpace(); }
   .                              { if (shouldReturn()) {return OutputToken();} yypushback(1); yybegin(YYINITIAL2); }
 }
 
+/* Continue popping DEDENT tokens at EOF */
 <<EOF>>                          { 
     if (stack.peek() != 0) {
         stack.pop();
