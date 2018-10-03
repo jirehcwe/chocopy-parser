@@ -237,9 +237,10 @@ expr ::= identifier:id                                  {: RESULT = id; :}
        | LPAREN:lp expr:e RPAREN:rp                     {: RESULT = e; :}
        | member_expr:e                                  {: RESULT = e; :}
        | index_expr:e                                   {: RESULT = e; :}
-       | binary_expr:e                                  {: RESULT = e; :}
-       | identifier:id LPAREN:lp list_expr:le RPAREN:rp         {: RESULT = new CallExpr(idxleft, rpxright, id, le); :}
        | member_expr:e LPAREN list_expr:le RPAREN:rp    {: RESULT = new MethodCallExpr(exleft, rpxright, e, le); :}
+       | identifier:id LPAREN:lp list_expr:le RPAREN:rp         {: RESULT = new CallExpr(idxleft, rpxright, id, le); :}
+       | binary_expr:e                                  {: RESULT = e; :}
+       | NOT:n expr:e                                   {: RESULT = new UnaryExpr(nxleft, exright, "not", e); :}
        | MINUS:op expr:e                                {: RESULT = new UnaryExpr(opxleft, exright, op, e); :}
        ;
 
@@ -258,6 +259,16 @@ binary_expr ::= expr:e1 PLUS:op expr:e2          {: RESULT = new BinaryExpr(e1xl
               | expr:e1 MULT:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
               | expr:e1 INTDIV:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
               | expr:e1 MOD:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              //Other binary ops
+              | expr:e1 EQUALSEQUALS:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 NOTEQUALS:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 LEQ:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 GEQ:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 LTHAN:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 GTHAN:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 IS:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, "is", e2); :}
+              | expr:e1 AND:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, "and", e2); :}
+              | expr:e1 OR:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, "or", e2); :}
               ;
 
 member_expr ::= expr:e PERIOD:p identifier:id            {: RESULT = new MemberExpr(exleft, idxright, e, id); :}
