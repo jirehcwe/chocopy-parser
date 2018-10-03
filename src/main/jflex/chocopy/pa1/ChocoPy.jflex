@@ -49,6 +49,7 @@ import java.util.*;
         if (stackCounter > stack.peek())
         {
             stack.push(stackCounter);
+            yypushback(1);
             //System.out.println("PUSHED COUNTER: " + stackCounter);
             yybegin(YYINITIAL);
             return symbol(ChocoPyTokens.INDENT);

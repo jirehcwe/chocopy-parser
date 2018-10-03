@@ -223,7 +223,7 @@ stmt ::= expr_stmt:s NEWLINE   {: RESULT = s; :}
        ;
 
 //HELPER SYMBOLS FOR [elif expr : block]* and [else : block]?
-elif_list ::= elif_list:el ELIF:el expr:e COLON block:b           {: RESULT = combine(b, el); :}
+elif_list ::= elif_list:el ELIF:el expr:e COLON block:b         {: RESULT = combine(b, el); :}
             | ELIF:el expr:e COLON block:b                      {: RESULT = single(b); :}
             |                                                   {: RESULT = empty(); :}
             ;
