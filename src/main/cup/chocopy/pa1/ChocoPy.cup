@@ -72,6 +72,9 @@ action code {:
     // You can define Java methods here that
     // can be used within the grammar rule actions.
 
+
+
+
     // Here are some useful methods to make lists of things
     // when implementing the kleene star
 
@@ -193,13 +196,13 @@ program ::= top_level_decl:d stmt_list:s   {: RESULT = new Program(d.isEmpty() ?
 //HELPER SYMBOL FOR [stmt]+
 stmt_list ::= stmt:s                 {: RESULT = single(s); :}
             | stmt_list:l stmt:s     {: RESULT = combine(l, s); :}
-            | stmt_list:l error      {: RESULT = l; :}   /* recovers from syntax errors in a stmt and moves on */
+            | stmt_list:l error:e      {: RESULT = l; parser.report_error("Syntax error, skip rest",e);:}   /* recovers from syntax errors in a stmt and moves on */
             ;
 //HELPER SYMBOL FOR [var_def | func_def | class_def]*
 top_level_decl ::= top_level_decl:tld var_def:vd    {: RESULT = combine(tld, vd); :}
                  | top_level_decl:tld func_def:fd   {: RESULT = combine(tld, fd); :}
                  | top_level_decl:tld class_def:cd  {: RESULT = combine(tld, cd); :}
-                 | top_level_decl:tld error         {: RESULT = tld; :}
+                 | top_level_decl:tld error         {: RESULT = tld;  :}
                  |                                  {: RESULT = empty(); :}
                 ;
                 

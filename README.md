@@ -47,7 +47,7 @@ git pull upstream master
 
 Team member 1: Dean Li
 
-Team member 2: 
+Team member 2: Jireh Chew
 
 ## Question 1:
 
@@ -65,6 +65,8 @@ The hardest language feature was the elif statement expanding into an if else st
 
 Our parser detects simple errors in situations where lists of symbols appear. Upon encountering an incorrect element in the list, it simply captures the error, skipping over that symbol, and recovers and continues forward.
 
+For example, in bad.py, we have 3 erroneous statements. Our parser outputs 3 error tokens, showing that it recovered from the error and continue to parse, hence showing the multiple errors. 
+
 ## LATE SUBMISSION:
 
-We used four slip hours. We still have ninety-six slip hours.
+We used five slip hours. We still have ninety-five slip hours.
