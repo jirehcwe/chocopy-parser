@@ -175,9 +175,13 @@ non terminal Identifier        identifier;
 non terminal VarDef            var_def;
 
 /* Precedences */
+precedence left OR;
+precedence left AND;
+precedence left NOT;
+precedence nonassoc EQUALSEQUALS, NOTEQUALS, GTHAN, GEQ, LTHAN, LEQ, IS;
 precedence left PLUS, MINUS;
-precedence left MULT, INTDIV;
-precedence left COLON, PERIOD, COMMA, LBRACK, RBRACK;
+precedence left MULT, INTDIV, MOD;
+precedence left PERIOD, COMMA, LBRACK, RBRACK;
 
 /* Declare the start rule */
 start with program;
@@ -253,6 +257,7 @@ binary_expr ::= expr:e1 PLUS:op expr:e2          {: RESULT = new BinaryExpr(e1xl
               | expr:e1 MINUS:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
               | expr:e1 MULT:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
               | expr:e1 INTDIV:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
+              | expr:e1 MOD:op expr:e2          {: RESULT = new BinaryExpr(e1xleft, e2xright, e1, op, e2); :}
               ;
 
 member_expr ::= expr:e PERIOD:p identifier:id            {: RESULT = new MemberExpr(exleft, idxright, e, id); :}
