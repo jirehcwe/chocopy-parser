@@ -188,7 +188,7 @@ precedence left NOT;
 precedence nonassoc EQUALSEQUALS, NOTEQUALS, GTHAN, GEQ, LTHAN, LEQ, IS;
 precedence left PLUS, MINUS;
 precedence left MULT, INTDIV, MOD;
-precedence left PERIOD, COMMA, LBRACK, RBRACK, LPAREN;
+precedence left PERIOD, COMMA, LBRACK, RBRACK;
 precedence left ELIF;
 
 /* Declare the start rule */
@@ -301,6 +301,7 @@ literal ::= BOOL:b          {: RESULT = new BooleanLiteral(bxleft, bxright, b); 
 
 list_expr ::= list_expr:le COMMA:op expr:e   {: RESULT = combine(le, e); :}
             | expr:e                         {: RESULT = single(e); :}
+            |                                {: RESULT = empty(); :}
             ;
 
 expr ::= identifier:id                                  {: RESULT = id; :}
